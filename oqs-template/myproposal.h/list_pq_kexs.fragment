@@ -1,0 +1,7 @@
+
+#define KEX_PQ_METHODS \
+    PQ_OQS_KEX_METHOD("oqsdefault-sha384") \
+{%- for kem in config['kems'] %}
+    KEX_PQ_METHOD_{{ kem['family'] }}{% if not loop.last -%}{{ " " }}\{%- endif -%}
+{%- endfor %}
+
