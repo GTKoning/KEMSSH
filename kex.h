@@ -232,7 +232,7 @@ enum kex_exchange {
 	KEX_C25519_SHA256,
 	KEX_HY_ECDH_OQS,
 	KEX_PQ_OQS,
-	//KEX_PQ_TOM,
+	KEX_PQ_TQS,
 	KEX_MAX
 };
 

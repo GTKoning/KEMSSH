@@ -83,6 +83,7 @@ struct kexalg {
 #endif /* WITH_HYBRID_KEX */
 #ifdef WITH_PQ_KEX
 #define PQ_OQS_KEX(X) { X, KEX_PQ_OQS, 0, SSH_DIGEST_SHA384},
+#define PQ_TQS_KEX(X) { X, KEX_PQ_TQS, 0, SSH_DIGEST_Sha384},
 #endif /* WITH_PQ_KEX */
 
 static const struct kexalg kexalgs[] = {
@@ -316,10 +317,9 @@ init_pq_kex(PQ_KEX_CTX **pq_kex_ctx, const struct kexalg *kexalg) {
 #ifdef WITH_OQS
 		case KEX_PQ_OQS:
 			return pq_oqs_init(pq_kex_ctx, kexalg->name);
-			/*
-	    case KEX_PQ_TOM:
-	        return
-	        */
+
+	    case KEX_PQ_TQS:
+	        return pq_tqs_init(pq_kex_ctx, kexalg->name);
 #endif /* WITH_OQS */
 		default:
 			return 0;
