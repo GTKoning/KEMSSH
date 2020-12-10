@@ -23,12 +23,29 @@
   </component>
   <component name="CMakeSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" ENABLED="true" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="imp kextqs">
+    <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="test voor client en server">
+      <change beforePath="$PROJECT_DIR$/.depend" beforeDir="false" afterPath="$PROJECT_DIR$/.depend" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kex.c" beforeDir="false" afterPath="$PROJECT_DIR$/kex.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kex.h" beforeDir="false" afterPath="$PROJECT_DIR$/kex.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexhy.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexhy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexoqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexoqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpq.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexpq.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexqstqsc.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexqstqss.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kextqs.h" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ssh-keyscan.c" beforeDir="false" afterPath="$PROJECT_DIR$/ssh-keyscan.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ssh_api.c" beforeDir="false" afterPath="$PROJECT_DIR$/ssh_api.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sshconnect2.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshconnect2.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sshd.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshd.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +59,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1kmM1BhGtBHslHqk8DWFetx9DXP" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -59,7 +77,7 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -75,7 +93,11 @@
       <updated>1606301100116</updated>
       <workItem from="1606301103687" duration="6099000" />
       <workItem from="1606394666638" duration="1201000" />
-      <workItem from="1606395925518" duration="1356000" />
+      <workItem from="1606395925518" duration="1898000" />
+      <workItem from="1606475321003" duration="2257000" />
+      <workItem from="1606995611984" duration="538000" />
+      <workItem from="1606996166649" duration="5471000" />
+      <workItem from="1607512653064" duration="10174000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>
@@ -91,7 +113,14 @@
       <option name="project" value="LOCAL" />
       <updated>1606396126142</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="next push - aanpassingen">
+      <created>1606397391804</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1606397391804</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -112,29 +141,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="push 2" />
     <MESSAGE value="imp kextqs" />
-    <option name="LAST_COMMIT_MESSAGE" value="imp kextqs" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="249" y="177" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606301405692">
-      <screen x="72" y="27" width="1608" height="1023" />
-    </state>
-    <state x="249" y="177" key="#com.intellij.execution.impl.EditConfigurationsDialog/72.27.1608.1023@72.27.1608.1023" timestamp="1606301405692" />
-    <state x="574" y="277" width="424" height="491" key="FileChooserDialogImpl" timestamp="1606301943926">
-      <screen x="72" y="27" width="1608" height="1023" />
-    </state>
-    <state x="574" y="277" width="424" height="491" key="FileChooserDialogImpl/72.27.1608.1023@72.27.1608.1023" timestamp="1606301943926" />
-    <state x="351" y="199" width="800" height="535" key="Vcs.Push.Dialog.v2" timestamp="1606396137342">
-      <screen x="72" y="27" width="1368" height="873" />
-    </state>
-    <state x="351" y="199" width="800" height="535" key="Vcs.Push.Dialog.v2/72.27.1368.873@72.27.1368.873" timestamp="1606396137342" />
-    <state x="572" y="434" width="428" height="177" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1606301195993">
-      <screen x="72" y="27" width="1608" height="1023" />
-    </state>
-    <state x="572" y="434" width="428" height="177" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/72.27.1608.1023@72.27.1608.1023" timestamp="1606301195993" />
-    <state x="421" y="113" width="588" height="669" key="find.popup" timestamp="1606396881210">
-      <screen x="72" y="27" width="1368" height="873" />
-    </state>
-    <state x="421" y="113" width="588" height="669" key="find.popup/72.27.1368.873@72.27.1368.873" timestamp="1606396881210" />
-    <state x="482" y="128" width="618" height="783" key="find.popup/72.27.1608.1023@72.27.1608.1023" timestamp="1606394222060" />
+    <MESSAGE value="next push - aanpassingen" />
+    <MESSAGE value="test voor client en server" />
+    <option name="LAST_COMMIT_MESSAGE" value="test voor client en server" />
   </component>
 </project>

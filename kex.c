@@ -83,7 +83,7 @@ struct kexalg {
 #endif /* WITH_HYBRID_KEX */
 #ifdef WITH_PQ_KEX
 #define PQ_OQS_KEX(X) { X, KEX_PQ_OQS, 0, SSH_DIGEST_SHA384},
-#define PQ_TQS_KEX(X) { X, KEX_PQ_TQS, 0, SSH_DIGEST_Sha384},
+#define PQ_TQS_KEX(X) { X, KEX_PQ_TQS, 0, SSH_DIGEST_SHA384},
 #endif /* WITH_PQ_KEX */
 
 static const struct kexalg kexalgs[] = {
@@ -216,12 +216,12 @@ static const struct kexalg kexalgs[] = {
 	PQ_OQS_KEX(KEX_FRODO_1344_SHAKE_SHA384)
 #endif /* HAVE_FRODO */
 #ifdef HAVE_KYBER
-	PQ_OQS_KEX(KEX_KYBER_512_SHA384)
-	PQ_OQS_KEX(KEX_KYBER_768_SHA384)
-	PQ_OQS_KEX(KEX_KYBER_1024_SHA384)
-	PQ_OQS_KEX(KEX_KYBER_512_90S_SHA384)
-	PQ_OQS_KEX(KEX_KYBER_768_90S_SHA384)
-	PQ_OQS_KEX(KEX_KYBER_1024_90S_SHA384)
+	PQ_TQS_KEX(KEX_KYBER_512_SHA384)
+	PQ_TQS_KEX(KEX_KYBER_768_SHA384)
+	PQ_TQS_KEX(KEX_KYBER_1024_SHA384)
+	PQ_TQS_KEX(KEX_KYBER_512_90S_SHA384)
+	PQ_TQS_KEX(KEX_KYBER_768_90S_SHA384)
+	PQ_TQS_KEX(KEX_KYBER_1024_90S_SHA384)
 #endif /* HAVE_KYBER */
 #ifdef HAVE_NTRU
 	PQ_OQS_KEX(KEX_NTRU_HPS_2048_509_SHA384)
@@ -320,6 +320,7 @@ init_pq_kex(PQ_KEX_CTX **pq_kex_ctx, const struct kexalg *kexalg) {
 
 	    case KEX_PQ_TQS:
 	        return pq_tqs_init(pq_kex_ctx, kexalg->name);
+
 #endif /* WITH_OQS */
 		default:
 			return 0;

@@ -3,22 +3,23 @@
 //
 #include "includes.h"
 
-#ifdef WITH_TQS
+//#ifdef WITH_TQS
 
 #include <string.h>
 
 #include "ssherr.h"
 #include "packet.h"
 #include "ssh2.h"
+#include "kexoqs.h"
 #include "kextqs.h"
 
 /*
  * Mapping that maps relevant named SSH key exchange methods to the needed
- * corresponding libtqs key exchange scheme
+ * corresponding liboqs key exchange scheme
  */
-static const TQS_ALG tqs_alg_mapping[] = {
+static const OQS_ALG oqs_alg_mapping[] = {
 #ifdef WITH_PQ_KEX
-	{PQ_OQS_KEX_SUFFIX("tqsdefault-sha384"), OQS_KEM_alg_default,
+	{PQ_OQS_KEX_SUFFIX("oqsdefault-sha384"), OQS_KEM_alg_default,
 	SSH2_MSG_PQ_OQSDEFAULT_INIT, SSH2_MSG_PQ_OQSDEFAULT_REPLY},
 ///// OQS_TEMPLATE_FRAGMENT_DEFINE_PQ_KEXS_START
 #ifdef HAVE_BIKE
@@ -156,14 +157,14 @@ static const TQS_ALG tqs_alg_mapping[] = {
 
 /*
  * @brief Maps the named SSH key exchange method's PQ kex algorithm
- * to libtqs key exchange algorithm
+ * to liboqs key exchange algorithm
  */
-const TQS_ALG *
+const OQS_ALG *
 tqs_mapping(const char *ssh_kex_name) {
 
-	const TQS_ALG *alg = NULL;
+	const OQS_ALG *alg = NULL;
 
-	for (alg = tqs_alg_mapping; alg->kex_alg != NULL; alg++) {
+	for (alg = oqs_alg_mapping; alg->kex_alg != NULL; alg++) {
 		if (strcmp(alg->kex_alg, ssh_kex_name) == 0) {
 			return alg;
 		}
@@ -173,73 +174,73 @@ tqs_mapping(const char *ssh_kex_name) {
 }
 
 /*
- * @brief Initialise key exchange libtqs specific context
+ * @brief Initialise key exchange liboqs specific context
  */
 int
-tqs_init(TQS_KEX_CTX **tqs_kex_ctx, char *ssh_kex_name) {
+tqs_init(OQS_KEX_CTX **oqs_kex_ctx, char *ssh_kex_name) {
 
-	TQS_KEX_CTX *tmp_tqs_kex_ctx = NULL;
-	const TQS_ALG *tqs_alg = NULL;
+	OQS_KEX_CTX *tmp_oqs_kex_ctx = NULL;
+	const OQS_ALG *oqs_alg = NULL;
 	int r = 0;
 
-	if ((tmp_tqs_kex_ctx = calloc(sizeof(*(tmp_tqs_kex_ctx)), 1)) == NULL) {
+	if ((tmp_oqs_kex_ctx = calloc(sizeof(*(tmp_oqs_kex_ctx)), 1)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
 
-	if ((tqs_alg = tqs_mapping(ssh_kex_name)) == NULL) {
+	if ((oqs_alg = oqs_mapping(ssh_kex_name)) == NULL) {
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
 
-	tmp_tqs_kex_ctx->tqs_kem = NULL;
-	tmp_tqs_kex_ctx->tqs_method = strdup(tqs_alg->alg_name);
-	tmp_tqs_kex_ctx->tqs_local_priv = NULL;
-	tmp_tqs_kex_ctx->tqs_local_priv_len = 0;
-	tmp_tqs_kex_ctx->tqs_local_msg = NULL;
-	tmp_tqs_kex_ctx->tqs_local_msg_len = 0;
-	tmp_tqs_kex_ctx->tqs_remote_msg = NULL;
-	tmp_tqs_kex_ctx->tqs_remote_msg_len = 0;
+	tmp_oqs_kex_ctx->oqs_kem = NULL;
+	tmp_oqs_kex_ctx->oqs_method = strdup(oqs_alg->alg_name);
+	tmp_oqs_kex_ctx->oqs_local_priv = NULL;
+	tmp_oqs_kex_ctx->oqs_local_priv_len = 0;
+	tmp_oqs_kex_ctx->oqs_local_msg = NULL;
+	tmp_oqs_kex_ctx->oqs_local_msg_len = 0;
+	tmp_oqs_kex_ctx->oqs_remote_msg = NULL;
+	tmp_oqs_kex_ctx->oqs_remote_msg_len = 0;
 
-	/* Use PRNG provided by OpenSSH instad of libtqs's PRNG */
-	TQS_randombytes_custom_algorithm((void (*)(uint8_t *, size_t)) &arc4random_buf);
+	/* Use PRNG provided by OpenSSH instad of liboqs's PRNG */
+	OQS_randombytes_custom_algorithm((void (*)(uint8_t *, size_t)) &arc4random_buf);
 
-	*tqs_kex_ctx = tmp_tqs_kex_ctx;
-	tmp_tqs_kex_ctx = NULL;
+	*oqs_kex_ctx = tmp_oqs_kex_ctx;
+	tmp_oqs_kex_ctx = NULL;
 
 out:
-	if (tmp_tqs_kex_ctx != NULL)
-		free(tmp_tqs_kex_ctx);
+	if (tmp_oqs_kex_ctx != NULL)
+		free(tmp_oqs_kex_ctx);
 
 	return r;
 }
 
 /*
- * @brief Free memory allocated for tqs part of key exchange
+ * @brief Free memory allocated for oqs part of key exchange
  */
 void
-tqs_free(TQS_KEX_CTX *tqs_kex_ctx) {
+tqs_free(OQS_KEX_CTX *oqs_kex_ctx) {
 
-	if (tqs_kex_ctx->tqs_local_msg != NULL) {
-		free(tqs_kex_ctx->tqs_local_msg);
-		tqs_kex_ctx->tqs_local_msg = NULL;
+	if (oqs_kex_ctx->oqs_local_msg != NULL) {
+		free(oqs_kex_ctx->oqs_local_msg);
+		oqs_kex_ctx->oqs_local_msg = NULL;
 	}
-	if (tqs_kex_ctx->tqs_remote_msg != NULL) {
-		free(tqs_kex_ctx->tqs_remote_msg);
-		tqs_kex_ctx->tqs_remote_msg = NULL;
+	if (oqs_kex_ctx->oqs_remote_msg != NULL) {
+		free(oqs_kex_ctx->oqs_remote_msg);
+		oqs_kex_ctx->oqs_remote_msg = NULL;
 	}
-	if (tqs_kex_ctx->tqs_local_priv != NULL) {
-		explicit_bzero(tqs_kex_ctx->tqs_local_priv, tqs_kex_ctx->tqs_local_priv_len);
-		free(tqs_kex_ctx->tqs_local_priv);
-		tqs_kex_ctx->tqs_local_priv = NULL;
+	if (oqs_kex_ctx->oqs_local_priv != NULL) {
+		explicit_bzero(oqs_kex_ctx->oqs_local_priv, oqs_kex_ctx->oqs_local_priv_len);
+		free(oqs_kex_ctx->oqs_local_priv);
+		oqs_kex_ctx->oqs_local_priv = NULL;
 	}
-	if (tqs_kex_ctx->tqs_method != NULL) {
-		free(tqs_kex_ctx->tqs_method);
-		tqs_kex_ctx->tqs_method = NULL;
+	if (oqs_kex_ctx->oqs_method != NULL) {
+		free(oqs_kex_ctx->oqs_method);
+		oqs_kex_ctx->oqs_method = NULL;
 	}
-	if (tqs_kex_ctx->tqs_kem != NULL) {
-		TQS_KEM_free(tqs_kex_ctx->tqs_kem);
-		tqs_kex_ctx->tqs_kem = NULL;
+	if (oqs_kex_ctx->oqs_kem != NULL) {
+		OQS_KEM_free(oqs_kex_ctx->oqs_kem);
+		oqs_kex_ctx->oqs_kem = NULL;
 	}
 }
 
@@ -247,125 +248,125 @@ tqs_free(TQS_KEX_CTX *tqs_kex_ctx) {
  * @brief SSH hybrid key exchange init message name
  */
 int
-tqs_ssh2_init_msg(const TQS_ALG *tqs_alg) {
-	return tqs_alg->ssh2_init_msg;
+tqs_ssh2_init_msg(const OQS_ALG *oqs_alg) {
+	return oqs_alg->ssh2_init_msg;
 }
 
 /*
  * @brief SSH hybrid key exchange reply message name
  */
 int
-tqs_ssh2_reply_msg(const TQS_ALG *tqs_alg) {
-	return tqs_alg->ssh2_reply_msg;
+tqs_ssh2_reply_msg(const OQS_ALG *oqs_alg) {
+	return oqs_alg->ssh2_reply_msg;
 }
 
 /*
- * @brief Generates the client side part of the libtqs kex
+ * @brief Generates the client side part of the liboqs kex
  */
 int
-tqs_client_gen(TQS_KEX_CTX *tqs_kex_ctx) {
+tqs_client_gen(OQS_KEX_CTX *oqs_kex_ctx) {
 
-	TQS_KEM *tqs_kem = NULL;
+	OQS_KEM *oqs_kem = NULL;
 	int r = 0;
 
-	if ((tqs_kem = TQS_KEM_new(tqs_kex_ctx->tqs_method)) == NULL) {
+	if ((oqs_kem = OQS_KEM_new(oqs_kex_ctx->oqs_method)) == NULL) {
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
 
-	tqs_kex_ctx->tqs_local_priv = NULL;
-	tqs_kex_ctx->tqs_local_msg = NULL;
+	oqs_kex_ctx->oqs_local_priv = NULL;
+	oqs_kex_ctx->oqs_local_msg = NULL;
 
-	tqs_kex_ctx->tqs_local_priv_len = tqs_kem->length_secret_key;
-	if ((tqs_kex_ctx->tqs_local_priv = malloc(tqs_kem->length_secret_key)) == NULL) {
+	oqs_kex_ctx->oqs_local_priv_len = oqs_kem->length_secret_key;
+	if ((oqs_kex_ctx->oqs_local_priv = malloc(oqs_kem->length_secret_key)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
 
-	tqs_kex_ctx->tqs_local_msg_len = tqs_kem->length_public_key;
-	if ((tqs_kex_ctx->tqs_local_msg = malloc(tqs_kem->length_public_key)) == NULL) {
+	oqs_kex_ctx->oqs_local_msg_len = oqs_kem->length_public_key;
+	if ((oqs_kex_ctx->oqs_local_msg = malloc(oqs_kem->length_public_key)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
 
 	/* Generate client side part of kex */
-	if (TQS_KEM_keypair(tqs_kem, tqs_kex_ctx->tqs_local_msg,
-		tqs_kex_ctx->tqs_local_priv) != TQS_SUCCESS) {
+	if (OQS_KEM_keypair(oqs_kem, oqs_kex_ctx->oqs_local_msg,
+		oqs_kex_ctx->oqs_local_priv) != OQS_SUCCESS) {
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
 
-	tqs_kex_ctx->tqs_kem = tqs_kem;
-	tqs_kem = NULL;
+	oqs_kex_ctx->oqs_kem = oqs_kem;
+	oqs_kem = NULL;
 
 out:
-	if (tqs_kem != NULL) {
-		TQS_KEM_free(tqs_kem);
-		free(tqs_kex_ctx->tqs_local_priv);
-		free(tqs_kex_ctx->tqs_local_msg);
+	if (oqs_kem != NULL) {
+		OQS_KEM_free(oqs_kem);
+		free(oqs_kex_ctx->oqs_local_priv);
+		free(oqs_kex_ctx->oqs_local_msg);
 	}
 
 	return r;
 }
 
 /*
- * @brief Deserialise libtqs specific parts of incoming packet
+ * @brief Deserialise liboqs specific parts of incoming packet
  */
 int
-tqs_deserialise(struct ssh *ssh, TQS_KEX_CTX *tqs_kex_ctx,
+tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
 
-	return sshpkt_get_string(ssh, &(tqs_kex_ctx->tqs_remote_msg),
-		&(tqs_kex_ctx->tqs_remote_msg_len));
+	return sshpkt_get_string(ssh, &(oqs_kex_ctx->oqs_remote_msg),
+		&(oqs_kex_ctx->oqs_remote_msg_len));
 }
 
 /*
- * @brief Serialise libtqs specific parts of outgoing packet
+ * @brief Serialise liboqs specific parts of outgoing packet
  */
 int
-tqs_serialise(struct ssh *ssh, TQS_KEX_CTX *tqs_kex_ctx,
+tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
 
-	return sshpkt_put_string(ssh, tqs_kex_ctx->tqs_local_msg,
-		tqs_kex_ctx->tqs_local_msg_len);
+	return sshpkt_put_string(ssh, oqs_kex_ctx->oqs_local_msg,
+		oqs_kex_ctx->oqs_local_msg_len);
 }
 
 /*
- * @brief Generates libtqs kex shared secret
+ * @brief Generates liboqs kex shared secret
  */
 int
-tqs_client_shared_secret(TQS_KEX_CTX *tqs_kex_ctx,
-	u_char **tqs_shared_secret, size_t *tqs_shared_secret_len) {
+tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
+	u_char **oqs_shared_secret, size_t *oqs_shared_secret_len) {
 
-	uint8_t *tmp_tqs_shared_secret = NULL;
+	uint8_t *tmp_oqs_shared_secret = NULL;
 	int r = 0;
 
-	if (tqs_kex_ctx->tqs_remote_msg_len != tqs_kex_ctx->tqs_kem->length_ciphertext) {
+	if (oqs_kex_ctx->oqs_remote_msg_len != oqs_kex_ctx->oqs_kem->length_ciphertext) {
 		r = SSH_ERR_INVALID_FORMAT;
 		goto out;
 	}
 
-	if ((tmp_tqs_shared_secret = malloc(tqs_kex_ctx->tqs_kem->length_shared_secret)) == NULL) {
+	if ((tmp_oqs_shared_secret = malloc(oqs_kex_ctx->oqs_kem->length_shared_secret)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
 
 	/* Generate shared secret from client private key and server public key */
-	if (TQS_KEM_decaps(tqs_kex_ctx->tqs_kem, tmp_tqs_shared_secret,
-		tqs_kex_ctx->tqs_remote_msg, tqs_kex_ctx->tqs_local_priv) != TQS_SUCCESS) {
+	if (OQS_KEM_decaps(oqs_kex_ctx->oqs_kem, tmp_oqs_shared_secret,
+		oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_local_priv) != OQS_SUCCESS) {
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
 
-	*tqs_shared_secret = (u_char *) tmp_tqs_shared_secret;
-	*tqs_shared_secret_len = tqs_kex_ctx->tqs_kem->length_shared_secret;
+	*oqs_shared_secret = (u_char *) tmp_oqs_shared_secret;
+	*oqs_shared_secret_len = oqs_kex_ctx->oqs_kem->length_shared_secret;
 
-	tmp_tqs_shared_secret = NULL;
+	tmp_oqs_shared_secret = NULL;
 
 out:
-	if (tmp_tqs_shared_secret != NULL) {
-		explicit_bzero(tmp_tqs_shared_secret, tqs_kex_ctx->tqs_kem->length_shared_secret);
-		free(tmp_tqs_shared_secret);
+	if (tmp_oqs_shared_secret != NULL) {
+		explicit_bzero(tmp_oqs_shared_secret, oqs_kex_ctx->oqs_kem->length_shared_secret);
+		free(tmp_oqs_shared_secret);
 	}
 
 	return r;
@@ -376,56 +377,56 @@ out:
  * the shared secret from server private key and client public key
  */
 int
-tqs_server_gen_msg_and_ss(TQS_KEX_CTX *tqs_kex_ctx,
-	u_char **tqs_shared_secret, size_t *tqs_shared_secret_len) {
+tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
+	u_char **oqs_shared_secret, size_t *oqs_shared_secret_len) {
 
-	TQS_KEM *tqs_kem = NULL;
-	uint8_t *tmp_tqs_shared_secret = NULL, *tmp_tqs_local_msg = NULL;
+	OQS_KEM *oqs_kem = NULL;
+	uint8_t *tmp_oqs_shared_secret = NULL, *tmp_oqs_local_msg = NULL;
 	int r = 0;
 
-	if ((tqs_kem = TQS_KEM_new(tqs_kex_ctx->tqs_method)) == NULL) {
+	if ((oqs_kem = OQS_KEM_new(oqs_kex_ctx->oqs_method)) == NULL) {
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
 
-	if (tqs_kex_ctx->tqs_remote_msg_len != tqs_kem->length_public_key) {
+	if (oqs_kex_ctx->oqs_remote_msg_len != oqs_kem->length_public_key) {
 		r = SSH_ERR_INVALID_FORMAT;
 		goto out;
 	}
 
-	if ((tmp_tqs_local_msg = malloc(tqs_kem->length_ciphertext)) == NULL) {
+	if ((tmp_oqs_local_msg = malloc(oqs_kem->length_ciphertext)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
-	if ((tmp_tqs_shared_secret = malloc(tqs_kem->length_shared_secret)) == NULL) {
+	if ((tmp_oqs_shared_secret = malloc(oqs_kem->length_shared_secret)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
 
-	if (TQS_KEM_encaps(tqs_kem, tmp_tqs_local_msg, tmp_tqs_shared_secret,
-		tqs_kex_ctx->tqs_remote_msg) != TQS_SUCCESS) {
+	if (OQS_KEM_encaps(oqs_kem, tmp_oqs_local_msg, tmp_oqs_shared_secret,
+		oqs_kex_ctx->oqs_remote_msg) != OQS_SUCCESS) {
 				r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
 
-	*tqs_shared_secret = (u_char *) tmp_tqs_shared_secret;
-	*tqs_shared_secret_len = tqs_kem->length_shared_secret;
-	tqs_kex_ctx->tqs_local_msg = tmp_tqs_local_msg;
-	tqs_kex_ctx->tqs_local_msg_len = tqs_kem->length_ciphertext;
+	*oqs_shared_secret = (u_char *) tmp_oqs_shared_secret;
+	*oqs_shared_secret_len = oqs_kem->length_shared_secret;
+	oqs_kex_ctx->oqs_local_msg = tmp_oqs_local_msg;
+	oqs_kex_ctx->oqs_local_msg_len = oqs_kem->length_ciphertext;
 
-	tmp_tqs_shared_secret = NULL;
+	tmp_oqs_shared_secret = NULL;
 
 out:
-	if (tqs_kem != NULL) {
-		TQS_KEM_free(tqs_kem);
+	if (oqs_kem != NULL) {
+		OQS_KEM_free(oqs_kem);
 	}
-	if (tmp_tqs_shared_secret != NULL) {
-		explicit_bzero(tmp_tqs_shared_secret, tqs_kem->length_shared_secret);
-		free(tmp_tqs_shared_secret);
-		free(tmp_tqs_local_msg);
+	if (tmp_oqs_shared_secret != NULL) {
+		explicit_bzero(tmp_oqs_shared_secret, oqs_kem->length_shared_secret);
+		free(tmp_oqs_shared_secret);
+		free(tmp_oqs_local_msg);
 	}
 
 	return r;
 }
 
-#endif /* WITH_TQS */
+//#endif /* WITH_TQS */

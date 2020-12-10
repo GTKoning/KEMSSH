@@ -31,6 +31,7 @@
 
 #include "packet.h"
 #include "kexoqs.h"
+#include "kextqs.h"
 
 /* Hybrid key exchange context */
 typedef struct pq_kex_ctx {
@@ -42,9 +43,9 @@ typedef struct pq_kex_ctx {
 	OQS_KEX_CTX *oqs_kex_ctx;	/* Liboqs context */
 #endif /* WITH_OQS */
 
-#ifdef WITH_TQS
-    TQS_KEX_CTX *tqs_kex_ctx;
-#endif /* WITH_TQS */
+//#ifdef WITH_TQS
+//    OQS_KEX_CTX *oqs_kex_ctx;
+//#endif /* WITH_TQS */
 } PQ_KEX_CTX;
 
 /*
@@ -75,7 +76,7 @@ int  pq_oqs_client(struct ssh *);
 int  pq_oqs_server(struct ssh *);
 #endif /* WITH_OQS */
 
-#ifdef WITH_TQS
+//#ifdef WITH_TQS
 int pq_tqs_hash (
 	int hash_alg,
 	const char *client_version_string,
@@ -94,7 +95,7 @@ void pq_tqs_free(PQ_KEX_CTX *pq_kex_ctx);
 int  pq_tqs_client(struct ssh *);
 /* Server specific function */
 int  pq_tqs_server(struct ssh *);
-#endif /* WITH_TQS */
+//#endif /* WITH_TQS */
 
 #endif /* WITH_PQ_KEX */
 
@@ -114,7 +115,7 @@ get_pq_oqs_client_cb() {
 static inline pq_func_cb
 get_pq_tqs_client_cb() {
 
-#if defined(WITH_TQS) && defined(WITH_PQ_KEX)
+#if defined(WITH_OQS) && defined(WITH_PQ_KEX)
     return pq_tqs_client;
 #else
     return NULL;
@@ -134,7 +135,7 @@ get_pq_oqs_server_cb() {
 static inline pq_func_cb
 get_pq_tqs_server_cb() {
 
-#if defined(WITH_TQS) && defined(WITH_PQ_KEX)
+#if defined(WITH_OQS) && defined(WITH_PQ_KEX)
     return pq_tqs_server;
 #else
     return NULL;

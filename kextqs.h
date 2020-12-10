@@ -27,10 +27,10 @@
 
 #include "includes.h"
 
-#ifdef WITH_TQS
-
+#include "oqs/oqs.h"
 #include "packet.h"
-#include "tqs/tqs.h"
+
+
 /*
 #define PQ_OQS_NAMESPACE_SUFFIX "@openquantumsafe.org"
 #define PQ_OQS_KEX_SUFFIX(X) X PQ_OQS_NAMESPACE_SUFFIX
@@ -44,50 +44,23 @@ typedef enum tqs_client_or_server {
  * State information needed for the libtqs part
  * of the hybrid key exchange
  */
-typedef struct tqs_kex_ctx {
-
-	TQS_KEM *tqs_kem;	/* libtqs KEM algorithm context */
-	char *tqs_method;	/* libtqs algorithm name */
-	uint8_t *tqs_local_priv;	/* Local private key */
-	size_t tqs_local_priv_len;	/* Local private key length */
-	uint8_t *tqs_local_msg;		/* Local message */
-	size_t tqs_local_msg_len;	/* Local message length */
-	uint8_t *tqs_remote_msg;	/* Remote message. */
-	size_t tqs_remote_msg_len;	/* Remote message length */
-
-} TQS_KEX_CTX;
-
-/*
- * libtqs algorithm information and stores message names used
- * during the hybrid key exchange
- */
-typedef struct tqs_alg {
-
-	char *kex_alg; 					/* SSH kex exchange name */
-	char *alg_name; 				/* libtqs algorithm name */
-	int ssh2_init_msg; 				/* Msg number/name mapping */
-	int ssh2_reply_msg; 			/* Msg number/name mapping */
-
-} TQS_ALG;
 
 /* Public client functions */
-int tqs_client_gen(TQS_KEX_CTX *tqs_kex_ctx);
-int tqs_client_extract(struct ssh *ssh, OQS_KEX_CTX *tqs_kex_ctx);
-int tqs_client_shared_secret(TQS_KEX_CTX *tqs_kex_ctx,
-	u_char **tqs_shared_secret, size_t *tqs_shared_secret_len);
+int tqs_client_gen(OQS_KEX_CTX *oqs_kex_ctx);
+int tqs_client_extract(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx);
+int tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
+	u_char **tqs_shared_secret, size_t *oqs_shared_secret_len);
 /* Public server  fucntions */
-int tqs_server_gen_msg_and_ss(TQS_KEX_CTX *tqs_kex_ctx,
-	u_char **tqs_shared_secret, size_t *tqs_shared_secret_len);
+int tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
+	u_char **oqs_shared_secret, size_t *oqs_shared_secret_len);
 /* Public shared functions */
-int tqs_init(TQS_KEX_CTX **tqs_kex_ctx, char *ssh_kex_name);
-void tqs_free(TQS_KEX_CTX *tqs_kex_ctx);
-const TQS_ALG * tqs_mapping(const char *ssh_kex_name);
-int tqs_ssh2_init_msg(const TQS_ALG *tqs_alg);
-int tqs_ssh2_reply_msg(const TQS_ALG *tqs_alg);
-int tqs_deserialise(struct ssh *ssh, TQS_KEX_CTX *tqs_kex_ctx,
+int tqs_init(OQS_KEX_CTX **oqs_kex_ctx, char *ssh_kex_name);
+void tqs_free(OQS_KEX_CTX *oqs_kex_ctx);
+const OQS_ALG * tqs_mapping(const char *ssh_kex_name);
+int tqs_ssh2_init_msg(const OQS_ALG *tqs_alg);
+int tqs_ssh2_reply_msg(const OQS_ALG *tqs_alg);
+int tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	tqs_client_or_server_t client_or_server);
-int tqs_serialise(struct ssh *ssh, TQS_KEX_CTX *tqs_kex_ctx,
+int tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	tqs_client_or_server_t client_or_server);
-
-#endif /* WITH_TQS */
 #endif /* KEX_TQS_H */

@@ -216,7 +216,7 @@ ssh_kex2(char *host, struct sockaddr *hostaddr, u_short port)
 # endif
 #endif
 	kex->kex[KEX_PQ_OQS] = get_pq_oqs_client_cb();
-	// kex -> kex[KEX_PQ_TOM] =
+	kex -> kex[KEX_PQ_TQS] = get_pq_tqs_client_cb();
 	kex->kex[KEX_C25519_SHA256] = kexc25519_client;
 	kex->client_version_string=client_version_string;
 	kex->server_version_string=server_version_string;

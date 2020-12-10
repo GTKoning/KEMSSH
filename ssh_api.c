@@ -132,6 +132,7 @@ ssh_init(struct ssh **sshp, int is_server, struct kex_params *kex_params)
 # endif
 #endif /* WITH_OPENSSL */
 		ssh->kex->kex[KEX_PQ_OQS] = get_pq_oqs_client_cb();
+        ssh->kex->kex[KEX_PQ_TQS] = get_pq_tqs_client_cb();
 		ssh->kex->kex[KEX_C25519_SHA256] = kexc25519_client;
 		ssh->kex->verify_host_key =&_ssh_verify_host_key;
 	}

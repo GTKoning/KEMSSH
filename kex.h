@@ -29,6 +29,7 @@
 #include "mac.h"
 
 #include "kexoqs.h"
+#include "kextqs.h"
 #include "kexhy.h"
 #include "kexpq.h"
 

@@ -102,6 +102,7 @@ LIBSSH_OBJS=${LIBOPENSSH_OBJS} \
 	kexdhc.o kexgexc.o kexecdhc.o kexc25519c.o \
 	kexdhs.o kexgexs.o kexecdhs.o kexc25519s.o \
 	kexoqs.o kexhyecdh.o \
+	kextqs.o kexpqtqs.o kexpqtqsc.o kexpqtqss.o\
 	kexpqoqs.o kexpqoqsc.o kexpqoqss.o \
 	kexhyecdhoqs.o kexhyecdhoqsc.o kexhyecdhoqss.o \
 	platform-pledge.o platform-tracing.o platform-misc.o

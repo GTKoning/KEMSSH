@@ -31,6 +31,7 @@
 
 #include "packet.h"
 #include "kexoqs.h"
+#include "kextqs.h"
 
 /* Hybrid key exchange context */
 typedef struct hybrid_kex_ctx {

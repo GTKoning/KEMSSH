@@ -32,6 +32,7 @@
 #include "packet.h"
 #include "ssh2.h"
 #include "kexoqs.h"
+#include "kextqs.h"
 
 /*
  * Mapping that maps relevant named SSH key exchange methods to the needed

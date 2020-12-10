@@ -3,7 +3,7 @@
 //
 #include "includes.h"
 
-#if defined(WITH_TQS) && defined(WITH_PQ_KEX)
+//#if defined(WITH_TQS) && defined(WITH_PQ_KEX)
 
 #include "compat.h"
 #include "ssherr.h"
@@ -16,7 +16,7 @@ int
 pq_tqs_init(PQ_KEX_CTX **pq_kex_ctx, char *pq_kex_name) {
 
 	PQ_KEX_CTX *buf_pq_kex_ctx = NULL;
-	TQS_KEX_CTX *buf_tqs_kex_ctx = NULL;
+	OQS_KEX_CTX *buf_oqs_kex_ctx = NULL;
 	int alloc_pq_kex_ctx = 1; /* (0) reuse PQ-only struct (1) allocated PQ-only struct */
 	int r = 0;
 
@@ -38,20 +38,20 @@ pq_tqs_init(PQ_KEX_CTX **pq_kex_ctx, char *pq_kex_name) {
 	}
 
 	buf_pq_kex_ctx->pq_kex_name = pq_kex_name;
-	buf_pq_kex_ctx->tqs_kex_ctx = NULL;
+	buf_pq_kex_ctx->oqs_kex_ctx = NULL;
 
-	if ((r = tqs_init(&buf_tqs_kex_ctx, pq_kex_name)) != 0)
+	if ((r = tqs_init(&buf_oqs_kex_ctx, pq_kex_name)) != 0)
 		goto out;
 
-	buf_pq_kex_ctx->tqs_kex_ctx = buf_tqs_kex_ctx;
-	buf_tqs_kex_ctx = NULL;
+	buf_pq_kex_ctx->oqs_kex_ctx = buf_oqs_kex_ctx;
+	buf_oqs_kex_ctx = NULL;
 	*pq_kex_ctx = buf_pq_kex_ctx;
 	buf_pq_kex_ctx = NULL;
 
 out:
 	if (buf_pq_kex_ctx != NULL) {
-		if (buf_pq_kex_ctx->tqs_kex_ctx != NULL)
-			tqs_free(buf_pq_kex_ctx->tqs_kex_ctx);
+		if (buf_pq_kex_ctx->oqs_kex_ctx != NULL)
+			tqs_free(buf_pq_kex_ctx->oqs_kex_ctx);
 		/*
 		 * If reusing, buf_pq_kex_ctx will point to the
 		 * reused memory and this wil eventually be freed
@@ -60,8 +60,8 @@ out:
 		if (alloc_pq_kex_ctx == 1)
 			free(buf_pq_kex_ctx);
 	}
-	if (buf_tqs_kex_ctx != NULL)
-		tqs_free(buf_tqs_kex_ctx);
+	if (buf_oqs_kex_ctx != NULL)
+		tqs_free(buf_oqs_kex_ctx);
 
 	return r;
 }
@@ -69,10 +69,10 @@ out:
 void
 pq_tqs_free(PQ_KEX_CTX *pq_kex_ctx) {
 
-	if (pq_kex_ctx->tqs_kex_ctx != NULL) {
-		tqs_free(pq_kex_ctx->tqs_kex_ctx);
-		free(pq_kex_ctx->tqs_kex_ctx);
-		pq_kex_ctx->tqs_kex_ctx = NULL;
+	if (pq_kex_ctx->oqs_kex_ctx != NULL) {
+		tqs_free(pq_kex_ctx->oqs_kex_ctx);
+		free(pq_kex_ctx->oqs_kex_ctx);
+		pq_kex_ctx->oqs_kex_ctx = NULL;
 	}
 }
 
@@ -133,4 +133,4 @@ out:
 	return r;
 }
 
-#endif /* defined(WITH_TQS) && defined(WITH_PQ_KEX) */
+//#endif /* defined(WITH_TQS) && defined(WITH_PQ_KEX) */
