@@ -497,18 +497,19 @@ oqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 
 	uint8_t *tmp_oqs_shared_secret = NULL;
 	int r = 0;
-
+    // checks ct length
 	if (oqs_kex_ctx->oqs_remote_msg_len != oqs_kex_ctx->oqs_kem->length_ciphertext) {
 		r = SSH_ERR_INVALID_FORMAT;
 		goto out;
 	}
 
 	if ((tmp_oqs_shared_secret = malloc(oqs_kex_ctx->oqs_kem->length_shared_secret)) == NULL) {
-		r = SSH_ERR_ALLOC_FAIL;
-		goto out;
-	}
+        r = SSH_ERR_ALLOC_FAIL;
+        goto out;
+    }
 
 	/* Generate shared secret from client private key and server public key */
+	// It does however not do this via encapsulating pk_b first, as the diagram I have suggests.
 	if (OQS_KEM_decaps(oqs_kex_ctx->oqs_kem, tmp_oqs_shared_secret,
 		oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_local_priv) != OQS_SUCCESS) {
 		r = SSH_ERR_INTERNAL_ERROR;

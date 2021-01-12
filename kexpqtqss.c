@@ -39,7 +39,7 @@ pq_tqs_c2s_deserialise(struct ssh *ssh,
 
     int r = 0;
 
-    if ((r = oqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER) != 0))
+    if ((r = tqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER) != 0))
         goto out;
 
     r = sshpkt_get_end(ssh);
@@ -55,17 +55,15 @@ pq_tqs_c2s_deserialise(struct ssh *ssh,
 static int
 pq_tqs_s2c_serialise(struct ssh *ssh,
                      PQ_KEX_CTX *pq_kex_ctx, u_char *server_host_key_blob,
-                     size_t server_host_key_blob_len, u_char *signature,
-                     size_t signature_len) {
+                     size_t server_host_key_blob_len) {
 
     int r = 0;
 
     if ((r = sshpkt_put_string(ssh, server_host_key_blob,
                                server_host_key_blob_len)) != 0 ||
-        (r = oqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0)
+        (r = tqs_serialise2(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0)
         goto out;
 
-    r = sshpkt_put_string(ssh, signature, signature_len);
 
     out:
     return r;
@@ -162,12 +160,14 @@ input_pq_tqs_init(int type, u_int32_t seq,
     struct sshbuf *shared_secret_ssh_buf = NULL;
     u_char *oqs_shared_secret = NULL;
     u_char *server_host_key_blob = NULL;
-    u_char *signature = NULL;
     u_char hash[SSH_DIGEST_MAX_LENGTH];
     size_t server_host_key_blob_len = 0;
-    size_t signature_len = 0;
     size_t hash_len = 0;
     size_t oqs_shared_secret_len = 0;
+    u_char *tqs_key_b = NULL;
+    u_char *tqs_key_a = NULL;
+    size_t tqs_key_size = 0;
+
     int r = 0;
 
     /* Test whether we are prepared to handle this packet */
@@ -186,7 +186,9 @@ input_pq_tqs_init(int type, u_int32_t seq,
                                    &server_host_key_blob_len)) != 0)
         goto out;
 
+    /* Packet comes in */
     /* Deserialise client to server packet */
+    /* Gets public key of client (and length) stored in remote_msg */
     if ((r = pq_tqs_c2s_deserialise(ssh, pq_kex_ctx)) != 0)
         goto out;
 
@@ -194,63 +196,35 @@ input_pq_tqs_init(int type, u_int32_t seq,
      * libOQS API only supports generating the liboqs public key
      * msg and shared secret simultaneously.
      */
-    if ((r = oqs_server_gen_msg_and_ss(oqs_kex_ctx,
-                                       &oqs_shared_secret, &oqs_shared_secret_len)) != 0)
+
+
+    if ((r = tqs_server_gen_msg_and_ss(oqs_kex_ctx,
+                                       &qs_key_b, &tqs_key_size, &oqs_shared_secret, &oqs_shared_secret_len)) != 0)
         goto out;
 
-    /*
-     * Compute exchange hash
-     * kex->peer is client
-     * kex->my is server
-     */
-    hash_len = sizeof(hash);
-    if ((r = pq_oqs_hash(
-            kex->hash_alg,
-            kex->client_version_string,
-            kex->server_version_string,
-            kex->peer,
-            kex->my,
-            server_host_key_blob, server_host_key_blob_len,
-            oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len,
-            oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len,
-            oqs_shared_secret, oqs_shared_secret_len,
-            hash, &hash_len)) !=0)
-        goto out;
-
-    /* Save session id */
-    if (kex->session_id == NULL) {
-        kex->session_id_len = hash_len;
-        kex->session_id = malloc(kex->session_id_len);
-        if (kex->session_id == NULL) {
-            r = SSH_ERR_ALLOC_FAIL;
-            goto out;
-        }
-        memcpy(kex->session_id, hash, kex->session_id_len);
-    }
-
-    /* Sign exchange hash */
-    if ((r = kex->sign(server_host_private, server_host_public,
-                       &signature, &signature_len, hash, hash_len, kex->hostkey_alg,
-                       ssh->compat)) < 0)
-        goto out;
+    // K_b and ct_b made.
 
     if ((oqs_alg = oqs_mapping(pq_kex_ctx->pq_kex_name)) == NULL) {
         error("Unsupported libOQS algorithm \"%.100s\"", pq_kex_ctx->pq_kex_name);
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
-
-    /* Send pq-only liboqs server to client packet */
+    // Need to send ct_b and pk_b -> use serialise 2 in s2c :)
+    // Also, where is pk_b currently stored?
+    // Now it makes sense! that's why the blobs are made.
     if ((r = sshpkt_start(ssh, oqs_ssh2_reply_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_s2c_serialise(ssh, pq_kex_ctx, server_host_key_blob,
-                                  server_host_key_blob_len, signature, signature_len)) != 0 ||
+                                  server_host_key_blob_len)) != 0 ||
         (r = sshpkt_send(ssh)) != 0)
         goto out;
+    // Sent out ct_b and pk_b
 
     /*
      * sshbuf_put_string() will encode the shared secret as a mpint
      * as required by SSH spec (RFC4253)
      */
+    // To do, figure out wtf they mean
+    // Bij nieuwe functie aan het einde nodig -> verder gaan met de rest
     if ((shared_secret_ssh_buf = sshbuf_new()) == NULL) {
         r = SSH_ERR_ALLOC_FAIL;
         goto out;
@@ -261,6 +235,11 @@ input_pq_tqs_init(int type, u_int32_t seq,
 
     if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0)
         r = kex_send_newkeys(ssh);
+
+    /* Set handler for recieving client verification initiation */
+    debug("expecting %i msg", tqs_ssh2_verinit_msg(oqs_alg));
+    ssh_dispatch_set(ssh, tqs_ssh2_verinit_msg(oqs_alg),
+                     &input_pq_tqs_verinit);
 
     out:
     explicit_bzero(hash, sizeof(hash));
@@ -278,6 +257,12 @@ input_pq_tqs_init(int type, u_int32_t seq,
         free(signature);
 
     return r;
+}
+
+static int
+input_pq_tqs_verinit(int type, u_int32_t seq,
+                  struct ssh *ssh) {
+
 }
 
 #endif /* defined(WITH_OQS) && defined(WITH_PQ_KEX) */

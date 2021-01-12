@@ -57,6 +57,10 @@ typedef struct oqs_kex_ctx {
 	size_t oqs_local_msg_len;	/* Local message length */
 	uint8_t *oqs_remote_msg;	/* Remote message. */
 	size_t oqs_remote_msg_len;	/* Remote message length */
+	uint8_t *tqs_ct_b;
+	size_t tqs_ct_b_len;
+	uint8_t *tqs_ct_a;
+	size_t tqs_ct_a_len;
 
 } OQS_KEX_CTX;
 
@@ -70,6 +74,8 @@ typedef struct oqs_alg {
 	char *alg_name; 				/* liboqs algorithm name */
 	int ssh2_init_msg; 				/* Msg number/name mapping */
 	int ssh2_reply_msg; 			/* Msg number/name mapping */
+    int ssh2_verinit_msg;           /* For the extra round trip */
+    int ssh2_verreply_msg;
 
 } OQS_ALG;
 

@@ -49,10 +49,10 @@ typedef enum tqs_client_or_server {
 int tqs_client_gen(OQS_KEX_CTX *oqs_kex_ctx);
 int tqs_client_extract(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx);
 int tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
-	u_char **tqs_shared_secret, size_t *oqs_shared_secret_len);
+	u_char **tqs_key_a, u_char **tqs_key_b, size_t *tqs_key_size, struct sshkey **server_host_key);
 /* Public server  fucntions */
 int tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
-	u_char **oqs_shared_secret, size_t *oqs_shared_secret_len);
+                              u_char **tqs_key_b, size_t *tqs_key_size, u_char **oqs_shared_secret, size_t *oqs_shared_secret_len);
 /* Public shared functions */
 int tqs_init(OQS_KEX_CTX **oqs_kex_ctx, char *ssh_kex_name);
 void tqs_free(OQS_KEX_CTX *oqs_kex_ctx);
@@ -61,6 +61,10 @@ int tqs_ssh2_init_msg(const OQS_ALG *tqs_alg);
 int tqs_ssh2_reply_msg(const OQS_ALG *tqs_alg);
 int tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	tqs_client_or_server_t client_or_server);
+int tqs_deserialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
+                    tqs_client_or_server_t client_or_server);
 int tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	tqs_client_or_server_t client_or_server);
+int tqs_serialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
+                  tqs_client_or_server_t client_or_server);
 #endif /* KEX_TQS_H */

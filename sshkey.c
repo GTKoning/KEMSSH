@@ -125,6 +125,8 @@ static const struct keytype keytypes[] = {
 	{ "ssh-xmss-cert-v01@openssh.com", "XMSS-CERT", NULL,
 	    KEY_XMSS_CERT, 0, 1, 0 },
 #endif /* WITH_XMSS */
+// ADDED TQS
+    {"ssh-kyber512", "KYBER512", NULL, KEY_KYBER512, 0, 0, 0},
 #ifdef WITH_PQ_AUTH
 ///// OQS_TEMPLATE_FRAGMENT_ADD_PQ_KT_START
 	{ "ssh-oqsdefault", "OQSDEFAULT", NULL, KEY_OQSDEFAULT, 0, 0, 0 },
@@ -373,6 +375,10 @@ sshkey_size(const struct sshkey *k)
 	case KEY_XMSS:
 	case KEY_XMSS_CERT:
 		return 256;	/* XXX */
+	// TO DO
+	case KEY_KYBER512:
+	    return 0;
+
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
 		return (k->oqs_sig == NULL ? 0 : k->oqs_sig->length_public_key);
@@ -2548,6 +2554,7 @@ sshkey_from_blob_internal(struct sshbuf *b, struct sshkey **keyp,
 	switch (type) {
 	CASE_KEY_OQS:
 	CASE_KEY_HYBRID:
+	CASE_KEY_TQS:
 		if ((ret = sshbuf_get_string(b, &pk, &len)) != 0)
 			goto out;
 		if (len != key->oqs_sig->length_public_key) {
@@ -3696,13 +3703,21 @@ sshkey_private_deserialize(struct sshbuf *buf, struct sshkey **kp)
 		break;
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
-	CASE_KEY_OQS:
-		/* we simply create the key, handling is done after the switch statement */
-		if ((k = sshkey_new(type)) == NULL) {
-			r = SSH_ERR_ALLOC_FAIL;
-			goto out;
-		}
-		break;
+	// HIER MOET EIGEN CASE TQS AUTH KEM
+	// Is het mogelijk om gewoon te mergen? Nee. Vind mogelijkheid case Kyber512
+	case KEY_KYBER512:
+        if ((k = sshkey_new(type)) == NULL) {
+            r = SSH_ERR_ALLOC_FAIL;
+            goto out;
+        }
+        break;
+    CASE_KEY_OQS:
+        /* we simply create the key, handling is done after the switch statement */
+        if ((k = sshkey_new(type)) == NULL) {
+            r = SSH_ERR_ALLOC_FAIL;
+            goto out;
+        }
+        break;
 #endif /* WITH_PQ_AUTH */
 
 	default:
@@ -4626,6 +4641,8 @@ sshkey_parse_private_fileblob_type(struct sshbuf *blob, int type,
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
+// ADDED FOR TQS
+	case KEY_KYBER512:
 #endif /* WITH_PQ_AUTH */
 #ifdef WITH_HYBRID_AUTH
 	CASE_KEY_HYBRID:
