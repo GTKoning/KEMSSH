@@ -15,6 +15,7 @@
 #include "packet.h"
 #include "sshbuf.h"
 #include "log.h"
+#include "hmac.h"
 
 static int
 input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh);
@@ -22,6 +23,8 @@ static int
 pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
                        struct sshkey **server_host_key, u_char **server_host_key_blob,
                        size_t *server_host_key_blob_len);
+static int pq_tqs_verinit(int type, u_int32_t seq, struct ssh *ssh);
+static int input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh);
 static int
 pq_tqs_c2s_serialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx);
 static int
@@ -56,7 +59,7 @@ pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
 
 static int
 pq_tqs_c2s_serialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx) {
-
+    // should send ct_a, once it has been made
     return tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT);
 }
 
@@ -167,7 +170,7 @@ pq_tqs_client(struct ssh *ssh) {
 
     /* Basically sends pk_a, it's in ctx as local msg and local private is sk_a. Do keep track of local msg as this can be overwritten */
     /* Send client PQ-only liboqs packet to server */
-    if ((r = sshpkt_start(ssh, oqs_ssh2_init_msg(oqs_alg))) != 0 ||
+    if ((r = sshpkt_start(ssh, tqs_ssh2_init_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_c2s_serialise(ssh, pq_kex_ctx)) != 0 ||
         (r = sshpkt_send(ssh)) != 0)
         goto out;
@@ -191,11 +194,13 @@ pq_tqs_client(struct ssh *ssh) {
 static int
 input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
 
+    const OQS_ALG *oqs_alg = NULL;
     PQ_KEX_CTX *pq_kex_ctx = NULL;
     OQS_KEX_CTX *oqs_kex_ctx = NULL;
     struct sshkey *server_host_key = NULL;
     struct sshbuf *shared_secret_ssh_buf = NULL;
     struct kex *kex = NULL;
+    struct ssh_hmac_ctx *hash_ctx = NULL;
     u_char *server_host_key_blob = NULL;
     u_char hash[SSH_DIGEST_MAX_LENGTH];
     u_char *oqs_shared_secret = NULL;
@@ -204,7 +209,11 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     size_t hash_len = 0;
     u_char *tqs_key_b = NULL;
     u_char *tqs_key_a = NULL;
-    size_t tqs_key_size = 0;
+    size_t tqs_halfkey_size = 0;
+    u_char *tqs_full_key = NULL;
+    size_t tqs_fullkey_size = 0;
+    u_char digest[16];
+
     int r = 0;
     // Should be getting ct_b and pk_b
     /* Test whether we are prepared to handle this packet */
@@ -230,8 +239,8 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     // Wij willen eerst encapsulaten, dus deze functie moet worden aangepast.
     // Sws moet de struct eigenlijk worden meegegeven als argument(denk ik).
     // Probeer met enkel het blob
-    if ((r = tqs_client_shared_secret(oqs_kex_ctx, &tqs_key_a, &tqs_key_b,
-                                      &tqs_key_size, &server_host_key)) != 0)
+    if ((r = tqs_client_shared_secret(oqs_kex_ctx, &tqs_key_a, &tqs_key_b, &tqs_full_key, &tqs_fullkey_size,
+                                      &tqs_halfkey_size, &server_host_key)) != 0)
         goto out;
 
     /*
@@ -240,7 +249,7 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
      * kex->peer is server
      */
     hash_len = sizeof(hash);
-    if ((r = pq_oqs_hash(
+    if ((r = pq_tqs_hash(
             kex->hash_alg,
             kex->client_version_string,
             kex->server_version_string,
@@ -249,9 +258,22 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
             server_host_key_blob, server_host_key_blob_len,
             oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len,
             oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len,
-            oqs_shared_secret, oqs_shared_secret_len,
+            tqs_full_key, tqs_fullkey_size,
             hash, &hash_len)) != 0)
         goto out;
+
+    if((hash_ctx = ssh_hmac_start(SSH_DIGEST_SHA256)) == NULL) {
+        printf("ssh_hmac_start failed");
+        goto out;
+    }
+
+    if((ssh_hmac_init(hash_ctx, tqs_full_key, tqs_fullkey_size)) < 0 ||
+            (ssh_hmac_update(hash_ctx, hash, hash_len)) < 0 ||
+            (ssh_hmac_final(hash_ctx, digest, sizeof(digest))) < 0) {
+        printf("ssh_hmac_xxx failed");
+        goto out;
+    }
+
 
     /* Verify signature over exchange hash */
     // Need to get rid of this (the signature part)
@@ -272,6 +294,11 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         }
         memcpy(kex->session_id, hash, kex->session_id_len);
     }
+    // Still need to send over ct_a -> so that server can make the key.
+    if ((r = sshpkt_start(ssh, tqs_ssh2_sendct_msg(oqs_alg))) != 0 ||
+        (r = pq_tqs_c2s_serialise(ssh, pq_kex_ctx)) != 0 ||
+        (r = sshpkt_send(ssh)) != 0)
+        goto out;
 
     /*
      * sshbuf_put_string() will encode the shared secret as a mpint
@@ -281,14 +308,23 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         r = SSH_ERR_ALLOC_FAIL;
         goto out;
     }
-    if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) oqs_shared_secret,
-                               oqs_shared_secret_len)) != 0)
+    if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) tqs_full_key,
+                               tqs_fullkey_size)) != 0)
         goto out;
 
     if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0)
         r = kex_send_newkeys(ssh);
 
+    oqs_kex_ctx->digest = digest;
+    oqs_kex_ctx->tqs_halfkey_size = tqs_halfkey_size;
+    oqs_kex_ctx->tqs_key_a = tqs_key_a;
+    oqs_kex_ctx->tqs_key_b = tqs_key_b;
+    ssh->kex->pq_kex_ctx->oqs_kex_ctx = oqs_kex_ctx;
+    // Initiate the MAC round trip
+    pq_tqs_verinit(type, seq, ssh);
+
     out:
+    ssh_hmac_free(hash_ctx);
     explicit_bzero(hash, sizeof(hash));
     pq_oqs_free(pq_kex_ctx);
     /* sshbuf_free zeroises memory */
@@ -308,15 +344,13 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
 
 static int
 pq_tqs_verinit(int type, u_int32_t seq, struct ssh *ssh) {
-    /* Set handler for recieving server reply */
-    debug("expecting %i msg", tqs_ssh2_reply_msg(oqs_alg));
-    ssh_dispatch_set(ssh, tqs_ssh2_reply_msg(oqs_alg),
-                     &input_pq_tqs_verreply);
+    /* need to send MAC */
+    return 0;
 }
 
 static int
 input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh) {
-
+    return 0;
 }
 
 #endif /* defined(WITH_OQS) && defined(WITH_PQ_KEX) */

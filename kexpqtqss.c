@@ -20,14 +20,16 @@ static int
 pq_tqs_c2s_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx);
 static int
 pq_tqs_s2c_serialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
-                     u_char *server_host_key_blob, size_t server_host_key_blob_len,
-                     u_char *signature, size_t signature_len);
+                     u_char *server_host_key_blob, size_t server_host_key_blob_len);
 static int
 pq_tqs_server_hostkey(struct ssh *ssh, struct sshkey **server_host_public,
                       struct sshkey **server_host_private, u_char **server_host_key_blob,
                       size_t *server_host_key_blob_len);
 static int
 input_pq_tqs_init(int type, u_int32_t seq, struct ssh *ssh);
+static int
+input_pq_tqs_finish(int type, u_int32_t seq,
+                    struct ssh *ssh);
 
 /*
  * @brief Logic that handles packet deserialisation of the client kex message
@@ -109,6 +111,8 @@ pq_tqs_server_hostkey(struct ssh *ssh, struct sshkey **server_host_public,
     *server_host_private = tmp_server_host_private;
     *server_host_key_blob = tmp_server_host_key_blob;
     *server_host_key_blob_len = tmp_server_host_key_blob_len;
+    kex->pq_kex_ctx->oqs_kex_ctx->blob = *server_host_key_blob;
+    kex->pq_kex_ctx->oqs_kex_ctx->bloblen = *server_host_key_blob_len;
 
     tmp_server_host_public = NULL;
     tmp_server_host_private = NULL;
@@ -160,13 +164,11 @@ input_pq_tqs_init(int type, u_int32_t seq,
     struct sshbuf *shared_secret_ssh_buf = NULL;
     u_char *oqs_shared_secret = NULL;
     u_char *server_host_key_blob = NULL;
-    u_char hash[SSH_DIGEST_MAX_LENGTH];
     size_t server_host_key_blob_len = 0;
-    size_t hash_len = 0;
     size_t oqs_shared_secret_len = 0;
     u_char *tqs_key_b = NULL;
-    u_char *tqs_key_a = NULL;
-    size_t tqs_key_size = 0;
+    size_t tqs_halfkey_size = 0;
+
 
     int r = 0;
 
@@ -199,10 +201,11 @@ input_pq_tqs_init(int type, u_int32_t seq,
 
 
     if ((r = tqs_server_gen_msg_and_ss(oqs_kex_ctx,
-                                       &qs_key_b, &tqs_key_size, &oqs_shared_secret, &oqs_shared_secret_len)) != 0)
+                                       &tqs_key_b, &tqs_halfkey_size, &oqs_shared_secret, &oqs_shared_secret_len)) != 0)
         goto out;
 
-    // K_b and ct_b made.
+
+    // K_b, ct_b made.
 
     if ((oqs_alg = oqs_mapping(pq_kex_ctx->pq_kex_name)) == NULL) {
         error("Unsupported libOQS algorithm \"%.100s\"", pq_kex_ctx->pq_kex_name);
@@ -225,24 +228,18 @@ input_pq_tqs_init(int type, u_int32_t seq,
      */
     // To do, figure out wtf they mean
     // Bij nieuwe functie aan het einde nodig -> verder gaan met de rest
-    if ((shared_secret_ssh_buf = sshbuf_new()) == NULL) {
-        r = SSH_ERR_ALLOC_FAIL;
-        goto out;
-    }
-    if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) oqs_shared_secret,
-                               oqs_shared_secret_len)) != 0)
-        goto out;
 
-    if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0)
-        r = kex_send_newkeys(ssh);
 
-    /* Set handler for recieving client verification initiation */
-    debug("expecting %i msg", tqs_ssh2_verinit_msg(oqs_alg));
-    ssh_dispatch_set(ssh, tqs_ssh2_verinit_msg(oqs_alg),
-                     &input_pq_tqs_verinit);
+    oqs_kex_ctx->oqs_local_priv = server_host_private->oqs_sk;
+
+    // We are receiving ct_a -> to make our key with
+    // BUT HOW
+    ssh->kex->pq_kex_ctx = pq_kex_ctx;
+    debug("expecting %i msg", tqs_ssh2_sendct_msg(oqs_alg));
+    ssh_dispatch_set(ssh, tqs_ssh2_sendct_msg(oqs_alg),
+                     &input_pq_tqs_finish);
 
     out:
-    explicit_bzero(hash, sizeof(hash));
     pq_oqs_free(pq_kex_ctx);
     /* sshbuf_free zeroises memory */
     if (shared_secret_ssh_buf != NULL)
@@ -253,15 +250,83 @@ input_pq_tqs_init(int type, u_int32_t seq,
     }
     if (server_host_key_blob != NULL)
         free(server_host_key_blob);
-    if (signature != NULL)
-        free(signature);
 
+    return r;
+}
+
+static int
+input_pq_tqs_finish(int type, u_int32_t seq,
+                  struct ssh *ssh) {
+
+    u_char *tqs_full_key = NULL;
+    size_t tqs_fullkey_size = 0;
+    u_char hash[SSH_DIGEST_MAX_LENGTH];
+    size_t hash_len = 0;
+    struct kex *kex = NULL;
+    struct sshbuf *shared_secret_ssh_buf = NULL;
+    PQ_KEX_CTX *pq_kex_ctx = NULL;
+    OQS_KEX_CTX *oqs_kex_ctx = NULL;
+
+    int r = 0;
+
+    if (ssh == NULL ||
+        (kex = ssh->kex) == NULL ||
+        (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
+        (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
+
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+
+
+    if ((r = pq_tqs_c2s_deserialise(ssh, pq_kex_ctx)) != 0)
+        goto out;
+    // so we got ct_a now.
+    // Time to create the shared key.
+
+    tqs_server_gen_key_hmac(oqs_kex_ctx, &tqs_full_key, &tqs_fullkey_size);
+    // shared key created
+    hash_len = sizeof(hash);
+    if ((r = pq_oqs_hash(
+            kex->hash_alg,
+            kex->client_version_string,
+            kex->server_version_string,
+            kex->peer,
+            kex->my,
+            oqs_kex_ctx->blob, oqs_kex_ctx->bloblen,
+            oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len,
+            oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len,
+            tqs_full_key, tqs_fullkey_size,
+            hash, &hash_len)) !=0)
+        goto out;
+    oqs_kex_ctx->hash = hash;
+
+    if ((shared_secret_ssh_buf = sshbuf_new()) == NULL) {
+        r = SSH_ERR_ALLOC_FAIL;
+        goto out;
+    }
+
+    if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) tqs_full_key,
+                               tqs_fullkey_size)) != 0)
+        goto out;
+
+    if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0)
+        r = kex_send_newkeys(ssh);
+
+    /* Set handler for recieving client verification initiation */
+    debug("expecting %i msg", tqs_ssh2_verinit_msg(oqs_alg));
+    ssh_dispatch_set(ssh, tqs_ssh2_verinit_msg(oqs_alg),
+                     &input_pq_tqs_verinit);
+    out:
+    explicit_bzero(hash, sizeof(hash));
+    pq_oqs_free(pq_kex_ctx);
     return r;
 }
 
 static int
 input_pq_tqs_verinit(int type, u_int32_t seq,
                   struct ssh *ssh) {
+    return 0;
 
 }
 

@@ -86,8 +86,10 @@ pq_tqs_hash (
 	const u_char *serverhostkeyblob, size_t serverhostkeyblob_len,
 	const uint8_t *tqs_client_public, size_t tqs_client_public_len,
 	const uint8_t *tqs_server_public, size_t tqs_server_public_len,
-	const u_char *tqs_shared_secret, size_t tqs_shared_secret_len,
+	const u_char *tqs_full_key, size_t tqs_fullkey_size,
 	u_char *hash, size_t *hash_len) {
+    u_char hash1[SSH_DIGEST_MAX_LENGTH];
+    u_char hash2[SSH_DIGEST_MAX_LENGTH];
 
 	struct sshbuf *hash_buf = NULL;
 	int r = 0;
@@ -116,7 +118,7 @@ pq_tqs_hash (
 		tqs_client_public_len)) != 0 ||
 	    (r = sshbuf_put_string(hash_buf, tqs_server_public,
 	    tqs_server_public_len)) != 0 ||
-	    (r = sshbuf_put_string(hash_buf, tqs_shared_secret, tqs_shared_secret_len)) != 0)
+	    (r = sshbuf_put_string(hash_buf, tqs_full_key, tqs_fullkey_size)) != 0)
 		goto out;
 
 	if (ssh_digest_buffer(hash_alg, hash_buf, hash, *hash_len) != 0) {

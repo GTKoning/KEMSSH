@@ -29,7 +29,13 @@
   <component name="ChangeListManager">
     <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="commit -&gt; encap decap struggles">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexoqs.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexoqs.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpq.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexpq.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kextqs.h" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,9 +71,9 @@
     <property name="settings.editor.selected.configurable" value="CLionExternalConfigurable" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
   </component>
@@ -85,7 +91,8 @@
       <workItem from="1606475321003" duration="2257000" />
       <workItem from="1606995611984" duration="538000" />
       <workItem from="1606996166649" duration="5471000" />
-      <workItem from="1607512653064" duration="75207000" />
+      <workItem from="1607512653064" duration="75326000" />
+      <workItem from="1610459827260" duration="44580000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>
@@ -129,7 +136,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610455896757</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="commit -&gt; encap decap struggles">
+      <created>1610459686361</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1610459686361</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

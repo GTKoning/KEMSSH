@@ -61,6 +61,13 @@ typedef struct oqs_kex_ctx {
 	size_t tqs_ct_b_len;
 	uint8_t *tqs_ct_a;
 	size_t tqs_ct_a_len;
+	u_char *tqs_key_a;
+	u_char *tqs_key_b;
+	size_t tqs_halfkey_size;
+    u_char *hash;
+    u_char *digest;
+    u_char *blob;
+    size_t bloblen;
 
 } OQS_KEX_CTX;
 
@@ -74,6 +81,7 @@ typedef struct oqs_alg {
 	char *alg_name; 				/* liboqs algorithm name */
 	int ssh2_init_msg; 				/* Msg number/name mapping */
 	int ssh2_reply_msg; 			/* Msg number/name mapping */
+	int ssh2_sendct_msg;
     int ssh2_verinit_msg;           /* For the extra round trip */
     int ssh2_verreply_msg;
 
@@ -93,6 +101,8 @@ void oqs_free(OQS_KEX_CTX *oqs_kex_ctx);
 const OQS_ALG * oqs_mapping(const char *ssh_kex_name);
 int oqs_ssh2_init_msg(const OQS_ALG *oqs_alg);
 int oqs_ssh2_reply_msg(const OQS_ALG *oqs_alg);
+//ADDED
+int tqs_ssh2_sendct_msg(const OQS_ALG *oqs_alg);
 int oqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	oqs_client_or_server_t client_or_server);
 int oqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,

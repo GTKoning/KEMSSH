@@ -86,7 +86,7 @@ int pq_tqs_hash (
 	const u_char *serverhostkeyblob, size_t serverhostkeyblob_len,
 	const uint8_t *tqs_client_public, size_t tqs_client_public_len,
 	const uint8_t *tqs_server_public, size_t tqs_server_public_len,
-	const u_char *tqs_shared_secret, size_t tqs_shared_secret_len,
+	const u_char *tqs_full_key, size_t tqs_fullkey_size,
 	u_char *hash, size_t *hash_len);
 /* Shared functions */
 int pq_tqs_init(PQ_KEX_CTX **pq_kex_ctx, char *pq_kex_name);

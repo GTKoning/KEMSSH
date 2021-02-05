@@ -266,6 +266,11 @@ tqs_ssh2_reply_msg(const OQS_ALG *oqs_alg) {
 }
 
 int
+tqs_ssh2_sendct_msg(const OQS_ALG *oqs_alg){
+    return oqs_alg->ssh2_sendct_msg;
+}
+
+int
 tqs_ssh2_verreply_msg(const OQS_ALG *oqs_alg) {
     return oqs_alg->ssh2_verreply_msg;
 }
@@ -325,6 +330,8 @@ out:
 int
 tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
+    // get cta if its there
+    sshpkt_get_string(ssh, &(oqs_kex_ctx->tqs_ct_a), &(oqs_kex_ctx->tqs_ct_a_len));
     // So we got the pk
 
     return sshpkt_get_string(ssh, &(oqs_kex_ctx->oqs_remote_msg),
@@ -349,6 +356,9 @@ tqs_deserialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 int
 tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
+    if(oqs_kex_ctx->tqs_ct_a != NULL){
+        sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len);
+    }
 
 	return sshpkt_put_string(ssh, oqs_kex_ctx->oqs_local_msg,
 		oqs_kex_ctx->oqs_local_msg_len);
@@ -366,11 +376,14 @@ tqs_serialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
  */
 int
 tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
-	u_char **tqs_key_a, u_char **tqs_key_b, size_t *tqs_key_size, struct sshkey **server_host_key) {
+	u_char **tqs_key_a, u_char **tqs_key_b, u_char **tqs_full_key, size_t *tqs_fullkey_size, size_t *tqs_halfkey_size, struct sshkey **server_host_key) {
     uint8_t *tmp_tqs_ct_a = NULL;
 	uint8_t *tmp_tqs_key_a = NULL;
     uint8_t *tmp_tqs_key_b = NULL;
+    uint8_t *tmp_tqs_full_key = NULL;
     struct sshkey *tmp_server_host_key = *server_host_key;
+    *tqs_halfkey_size = oqs_kex_ctx->oqs_kem->length_shared_secret;
+    *tqs_fullkey_size = 2*sizeof(oqs_kex_ctx->oqs_kem->length_shared_secret);
 
 	int r = 0;
     // checks ct_b length
@@ -385,13 +398,19 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 	}
 
 	// Make space for "key_a"
-	if ((tmp_tqs_key_a = malloc(oqs_kex_ctx->oqs_kem->length_shared_secret)) == NULL) {
+	if ((tmp_tqs_key_a = malloc(*tqs_halfkey_size)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
 
     // Make space for "key_b"
-    if ((tmp_tqs_key_b = malloc(oqs_kex_ctx->oqs_kem->length_shared_secret)) == NULL) {
+    if ((tmp_tqs_key_b = malloc(*tqs_halfkey_size)) == NULL) {
+        r = SSH_ERR_ALLOC_FAIL;
+        goto out;
+    }
+
+    // Make space for "full key"
+    if ((tmp_tqs_full_key = malloc(*tqs_fullkey_size)) == NULL) {
         r = SSH_ERR_ALLOC_FAIL;
         goto out;
     }
@@ -416,15 +435,17 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 		goto out;
 	}
 
+    *tmp_tqs_full_key = *tmp_tqs_key_a + *tmp_tqs_key_b;
 	*tqs_key_a = (u_char *) tmp_tqs_key_a;
     *tqs_key_b = (u_char *) tmp_tqs_key_b;
-	*tqs_key_size = oqs_kex_ctx->oqs_kem->length_shared_secret;
+    *tqs_full_key = (u_char *) tmp_tqs_full_key;
 	oqs_kex_ctx->tqs_ct_a = tmp_tqs_ct_a;
     oqs_kex_ctx->tqs_ct_a_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
 
+
 	tmp_tqs_key_a = NULL;
 
-	// Now for the KDF -> what to do?
+	// Now for the KDF -> what to do? Added them together -> cast to u char
 
 out:
 	if (tmp_tqs_key_a != NULL) {
@@ -443,7 +464,7 @@ out:
 /* Leest de public key out OQS_KEX_CTX en schrijft de ct (naar oqs_kex_ctx) */
 int
 tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
-	u_char **tqs_key_b, size_t *tqs_key_size, u_char **oqs_shared_secret, size_t *oqs_shared_secret_len) {
+	u_char **tqs_key_b, size_t *tqs_halfkey_size, u_char **oqs_shared_secret, size_t *oqs_shared_secret_len) {
 
 	OQS_KEM *oqs_kem = NULL;
 	uint8_t *tmp_tqs_key_b = NULL, *tmp_tqs_ct_b = NULL;
@@ -475,7 +496,8 @@ tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
 	}
 
 	*tqs_key_b = (u_char *) tmp_tqs_key_b;
-	*tqs_key_size = oqs_kem->length_shared_secret;
+	oqs_kex_ctx->tqs_key_b = tmp_tqs_key_b;
+	*tqs_halfkey_size = oqs_kem->length_shared_secret;
 	// ct set
     *oqs_shared_secret = (u_char *) tmp_tqs_key_b;
     *oqs_shared_secret_len = oqs_kex_ctx->oqs_kem->length_shared_secret;
@@ -483,6 +505,7 @@ tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
 	oqs_kex_ctx->tqs_ct_b_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
 
     tmp_tqs_key_b = NULL;
+    tmp_tqs_ct_b = NULL;
 
 out:
 	if (oqs_kem != NULL) {
@@ -495,6 +518,52 @@ out:
 	}
 
 	return r;
+}
+
+int
+tqs_server_gen_key_hmac(OQS_KEX_CTX *oqs_kex_ctx, u_char **tqs_full_key, size_t *tqs_fullkey_size){
+    uint8_t *tmp_tqs_key_a = NULL;
+    uint8_t *tmp_tqs_key_b = oqs_kex_ctx->tqs_key_b;
+    uint8_t *tmp_tqs_full_key = NULL;
+    size_t tqs_halfkey_size = oqs_kex_ctx->oqs_kem->length_shared_secret;
+    *tqs_fullkey_size = 2*sizeof(oqs_kex_ctx->oqs_kem->length_shared_secret);
+    oqs_kex_ctx->tqs_ct_a_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
+
+    int r = 0;
+
+    // Make space for "key_a"
+    if ((tmp_tqs_key_a = malloc(tqs_halfkey_size)) == NULL) {
+        r = SSH_ERR_ALLOC_FAIL;
+        goto out;
+    }
+
+    // Make space for "full key"
+    if ((tmp_tqs_full_key = malloc(*tqs_fullkey_size)) == NULL) {
+        r = SSH_ERR_ALLOC_FAIL;
+        goto out;
+    }
+
+    /* Generate shared secret from client private key and server public key */
+    if (OQS_KEM_decaps(oqs_kex_ctx->oqs_kem, tmp_tqs_key_a,
+                       oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->oqs_local_priv) != OQS_SUCCESS) {
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+
+    *tmp_tqs_full_key = *tmp_tqs_key_a + *tmp_tqs_key_b;
+    oqs_kex_ctx->tqs_key_a = tmp_tqs_key_a;
+    *tqs_full_key = (u_char *) tmp_tqs_full_key;
+
+    tmp_tqs_key_a = NULL;
+
+    // Thats all done ( I hope)
+
+    out:
+    if (tmp_tqs_key_a != NULL) {
+        explicit_bzero(tmp_tqs_key_a, oqs_kex_ctx->oqs_kem->length_shared_secret);
+        free(tmp_tqs_key_a);
+    }
+    return r;
 }
 
 //#endif /* WITH_TQS */
