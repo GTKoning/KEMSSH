@@ -1802,6 +1802,7 @@ main(int ac, char **av)
 		case KEY_ED25519:
 		case KEY_XMSS:
 		CASE_KEY_OQS:
+        CASE_KEY_TQS:
 		CASE_KEY_HYBRID:
 			if (have_agent || key != NULL)
 				sensitive_data.have_ssh2_key = 1;

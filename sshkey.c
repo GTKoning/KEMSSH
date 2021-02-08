@@ -1025,12 +1025,14 @@ to_blob_buf(const struct sshkey *key, struct sshbuf *b, int force_plain,
 		}
 		if ((ret = sshbuf_put_string(b, key->oqs_pk, key->oqs_sig->length_public_key)) != 0)
 			return ret;
+        break;
     CASE_KEY_TQS:
 		if (key->oqs_pk == NULL) {
 			return SSH_ERR_INVALID_ARGUMENT;
 		}
 		if ((ret = sshbuf_put_string(b, key->oqs_pk, key->oqs_kem->length_public_key)) != 0)
 			return ret;
+        break;
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 
@@ -1607,6 +1609,7 @@ sshkey_read(struct sshkey *ret, char **cpp)
 		break;
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
+    CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* we simply break here to avoid the default clause. PQ processing
 		   is done after the switch statement */
@@ -1633,6 +1636,19 @@ sshkey_read(struct sshkey *ret, char **cpp)
 		}
 		ret->oqs_pk = k->oqs_pk;
 		k->oqs_pk = NULL;
+        break;
+    CASE_KEY_TQS:
+		if (ret->oqs_kem) {
+			OQS_KEM_free(ret->oqs_kem);
+		}
+		freezero(ret->oqs_pk, k->oqs_kem->length_public_key);
+		if ((ret->oqs_kem = OQS_KEM_new(get_oqs_alg_name(ret->type))) == NULL) {
+			sshkey_free(k);
+			return SSH_ERR_INTERNAL_ERROR;
+		}
+		ret->oqs_pk = k->oqs_pk;
+		k->oqs_pk = NULL;
+        break;
 #ifdef DEBUG_PK
 		/* XXX */
 #endif
