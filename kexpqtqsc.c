@@ -23,6 +23,8 @@ static int
 pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
                        struct sshkey **server_host_key, u_char **server_host_key_blob,
                        size_t *server_host_key_blob_len);
+static int
+pq_tqs_s2c_deserialisever(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx);
 static int pq_tqs_verinit(int type, u_int32_t seq, struct ssh *ssh);
 static int input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh);
 static int
@@ -56,11 +58,25 @@ pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
     out:
     return r;
 }
+static int
+pq_tqs_s2c_deserialisever(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx){
+    int r = 0;
+    if(r = tqs_deserialisever(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT) != 0)
+        goto out;
+    r = sshpkt_get_end(ssh);
+    out:
+    return r;
+}
 
 static int
 pq_tqs_c2s_serialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx) {
     // should send ct_a, once it has been made
     return tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT);
+}
+
+static int
+pq_tqs_c2s_serialisever(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx){
+    return tqs_serialisever(ssh,pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT);
 }
 
 static int
@@ -315,10 +331,12 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0)
         r = kex_send_newkeys(ssh);
 
-    oqs_kex_ctx->digest = digest;
+    oqs_kex_ctx->digesta = digest;
+    oqs_kex_ctx->digestlen = sizeof(digest);
     oqs_kex_ctx->tqs_halfkey_size = tqs_halfkey_size;
     oqs_kex_ctx->tqs_key_a = tqs_key_a;
     oqs_kex_ctx->tqs_key_b = tqs_key_b;
+    oqs_kex_ctx->hash_len = hash_len;
     ssh->kex->pq_kex_ctx->oqs_kex_ctx = oqs_kex_ctx;
     // Initiate the MAC round trip
     pq_tqs_verinit(type, seq, ssh);
@@ -345,12 +363,53 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
 static int
 pq_tqs_verinit(int type, u_int32_t seq, struct ssh *ssh) {
     /* need to send MAC */
-    return 0;
+    const OQS_ALG *oqs_alg = NULL;
+    PQ_KEX_CTX *pq_kex_ctx = NULL;
+    OQS_KEX_CTX *oqs_kex_ctx = NULL;
+    struct kex *kex = NULL;
+    int r = 0;
+    if (ssh == NULL ||
+        (kex = ssh->kex) == NULL ||
+        (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
+        (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
+
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+    if ((r = sshpkt_start(ssh, tqs_ssh2_init_msg(oqs_alg))) != 0 ||
+        (r = pq_tqs_c2s_serialisever(ssh, pq_kex_ctx)) != 0 ||
+        (r = sshpkt_send(ssh)) != 0)
+        goto out;
+
+    debug("expecting %i msg", tqs_ssh2_verreply_msg(oqs_alg));
+    ssh_dispatch_set(ssh, tqs_ssh2_verreply_msg(oqs_alg),
+                     &input_pq_tqs_verreply);
+    out:
+    pq_oqs_free(pq_kex_ctx);
+    return r;
 }
 
 static int
 input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh) {
-    return 0;
+    PQ_KEX_CTX *pq_kex_ctx = NULL;
+    OQS_KEX_CTX *oqs_kex_ctx = NULL;
+    struct kex *kex = NULL;
+    int r = 0;
+
+    if (ssh == NULL ||
+        (kex = ssh->kex) == NULL ||
+        (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
+        (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
+
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+
+    if ((r = pq_tqs_s2c_deserialisever(ssh, pq_kex_ctx)) != 0)
+        goto out;
+    out:
+    pq_oqs_free(pq_kex_ctx);
+    return r;
 }
 
 #endif /* defined(WITH_OQS) && defined(WITH_PQ_KEX) */

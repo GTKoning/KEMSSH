@@ -67,8 +67,10 @@ int tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	tqs_client_or_server_t client_or_server);
 int tqs_deserialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
                     tqs_client_or_server_t client_or_server);
+int tqs_deserialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_or_server client_or_server);
 int tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	tqs_client_or_server_t client_or_server);
+int tqs_serialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_or_server client_or_server);
 int tqs_serialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
                   tqs_client_or_server_t client_or_server);
 #endif /* KEX_TQS_H */

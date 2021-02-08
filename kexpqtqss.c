@@ -14,6 +14,7 @@
 #include "packet.h"
 #include "sshbuf.h"
 #include "log.h"
+#include "hmac.h"
 
 /* Server private */
 static int
@@ -21,6 +22,9 @@ pq_tqs_c2s_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx);
 static int
 pq_tqs_s2c_serialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
                      u_char *server_host_key_blob, size_t server_host_key_blob_len);
+static int
+pq_tqs_s2c_serialisever(struct ssh *ssh,
+                        PQ_KEX_CTX *pq_kex_ctx);
 static int
 pq_tqs_server_hostkey(struct ssh *ssh, struct sshkey **server_host_public,
                       struct sshkey **server_host_private, u_char **server_host_key_blob,
@@ -30,6 +34,9 @@ input_pq_tqs_init(int type, u_int32_t seq, struct ssh *ssh);
 static int
 input_pq_tqs_finish(int type, u_int32_t seq,
                     struct ssh *ssh);
+static int
+input_pq_tqs_verinit(int type, u_int32_t seq,
+                     struct ssh *ssh);
 
 /*
  * @brief Logic that handles packet deserialisation of the client kex message
@@ -42,6 +49,18 @@ pq_tqs_c2s_deserialise(struct ssh *ssh,
     int r = 0;
 
     if ((r = tqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER) != 0))
+        goto out;
+
+    r = sshpkt_get_end(ssh);
+
+    out:
+    return r;
+}
+
+static int
+pq_tqs_c2s_deserialisever(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx){
+    int r = 0;
+    if ((r = tqs_deserialisever(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER) != 0))
         goto out;
 
     r = sshpkt_get_end(ssh);
@@ -69,6 +88,17 @@ pq_tqs_s2c_serialise(struct ssh *ssh,
 
     out:
     return r;
+}
+static int
+pq_tqs_s2c_serialisever(struct ssh *ssh,
+                     PQ_KEX_CTX *pq_kex_ctx){
+    int r = 0;
+    if ((r = sshpkt_put_string(ssh, pq_kex_ctx->oqs_kex_ctx->digestb,
+                               pq_kex_ctx->oqs_kex_ctx->digestlen) != 0))
+        goto out;
+    out:
+    return r;
+
 }
 
 /*
@@ -257,7 +287,7 @@ input_pq_tqs_init(int type, u_int32_t seq,
 static int
 input_pq_tqs_finish(int type, u_int32_t seq,
                   struct ssh *ssh) {
-
+    const OQS_ALG *oqs_alg = NULL;
     u_char *tqs_full_key = NULL;
     size_t tqs_fullkey_size = 0;
     u_char hash[SSH_DIGEST_MAX_LENGTH];
@@ -300,6 +330,9 @@ input_pq_tqs_finish(int type, u_int32_t seq,
             hash, &hash_len)) !=0)
         goto out;
     oqs_kex_ctx->hash = hash;
+    oqs_kex_ctx->hash_len = hash_len;
+    oqs_kex_ctx->tqs_full_key = tqs_full_key;
+    oqs_kex_ctx->tqs_fullkey_size = tqs_fullkey_size;
 
     if ((shared_secret_ssh_buf = sshbuf_new()) == NULL) {
         r = SSH_ERR_ALLOC_FAIL;
@@ -326,8 +359,55 @@ input_pq_tqs_finish(int type, u_int32_t seq,
 static int
 input_pq_tqs_verinit(int type, u_int32_t seq,
                   struct ssh *ssh) {
-    return 0;
+    const OQS_ALG *oqs_alg = NULL;
+    struct kex *kex = NULL;
+    PQ_KEX_CTX *pq_kex_ctx = NULL;
+    OQS_KEX_CTX *oqs_kex_ctx = NULL;
+    struct ssh_hmac_ctx *hash_ctx = NULL;
+    u_char digest[16];
+    u_char *macmessage;
 
+    int r = 0;
+
+    if (ssh == NULL ||
+        (kex = ssh->kex) == NULL ||
+        (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
+        (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
+
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+
+    if ((r = pq_tqs_c2s_deserialisever(ssh, pq_kex_ctx)) != 0)
+        goto out;
+
+    if((hash_ctx = ssh_hmac_start(SSH_DIGEST_SHA256)) == NULL) {
+        printf("ssh_hmac_start failed");
+        goto out;
+    }
+    uint8_t *tmp_macmessage = NULL;
+    uint8_t *tmp_digesta = oqs_kex_ctx->digesta;
+    uint8_t *tmp_hash = oqs_kex_ctx->hash;
+    *tmp_macmessage = *tmp_digesta + *tmp_hash;
+    macmessage = (u_char *) tmp_macmessage;
+
+    if((ssh_hmac_init(hash_ctx, oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size)) < 0 ||
+       (ssh_hmac_update(hash_ctx, macmessage, sizeof(macmessage))) < 0 ||
+       (ssh_hmac_final(hash_ctx, digest, sizeof(digest))) < 0) {
+        printf("ssh_hmac_xxx failed");
+        goto out;
+    }
+    oqs_kex_ctx->digestb = digest;
+
+    if ((r = sshpkt_start(ssh, oqs_ssh2_reply_msg(oqs_alg))) != 0 ||
+        (r = pq_tqs_s2c_serialisever(ssh, pq_kex_ctx)) != 0 ||
+        (r = sshpkt_send(ssh)) != 0)
+        goto out;
+
+    out:
+    ssh_hmac_free(hash_ctx);
+    pq_oqs_free(pq_kex_ctx);
+    return r;
 }
 
 #endif /* defined(WITH_OQS) && defined(WITH_PQ_KEX) */

@@ -63,9 +63,14 @@ typedef struct oqs_kex_ctx {
 	size_t tqs_ct_a_len;
 	u_char *tqs_key_a;
 	u_char *tqs_key_b;
+	u_char *tqs_full_key;
+	size_t tqs_fullkey_size;
 	size_t tqs_halfkey_size;
     u_char *hash;
-    u_char *digest;
+    size_t hash_len;
+    size_t digestlen;
+    u_char *digesta;
+    u_char *digestb;
     u_char *blob;
     size_t bloblen;
 

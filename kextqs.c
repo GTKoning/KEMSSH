@@ -349,6 +349,14 @@ tqs_deserialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
                              &(oqs_kex_ctx->oqs_remote_msg_len));
 }
 
+int
+tqs_deserialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_or_server client_or_server){
+    if(client_or_server == TQS_IS_CLIENT){
+        return sshpkt_get_string(ssh, &(oqs_kex_ctx->digestb), &(oqs_kex_ctx->digestlen));
+    }
+    return sshpkt_get_string(ssh, &(oqs_kex_ctx->digesta), &(oqs_kex_ctx->digestlen));
+}
+
 
 /*
  * @brief Serialise liboqs specific parts of outgoing packet
@@ -362,6 +370,10 @@ tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 
 	return sshpkt_put_string(ssh, oqs_kex_ctx->oqs_local_msg,
 		oqs_kex_ctx->oqs_local_msg_len);
+}
+
+int tqs_serialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_or_server client_or_server){
+    return sshpkt_put_string(ssh, oqs_kex_ctx->digesta, oqs_kex_ctx->digestlen);
 }
 
 int

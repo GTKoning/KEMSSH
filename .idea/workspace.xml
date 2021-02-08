@@ -27,11 +27,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="commit -&gt; encap decap struggles">
+    <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="commit -&gt; alleen de mac ver nog.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexoqs.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexoqs.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexpq.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexpq.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexpqtqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqs.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
@@ -92,7 +90,7 @@
       <workItem from="1606995611984" duration="538000" />
       <workItem from="1606996166649" duration="5471000" />
       <workItem from="1607512653064" duration="75326000" />
-      <workItem from="1610459827260" duration="44580000" />
+      <workItem from="1610459827260" duration="53041000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>
@@ -143,7 +141,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610459686361</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="commit -&gt; alleen de mac ver nog.">
+      <created>1612536962734</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1612536962734</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,6 +173,7 @@
     <MESSAGE value="next push - aanpassingen" />
     <MESSAGE value="test voor client en server" />
     <MESSAGE value="commit -&gt; encap decap struggles" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit -&gt; encap decap struggles" />
+    <MESSAGE value="commit -&gt; alleen de mac ver nog." />
+    <option name="LAST_COMMIT_MESSAGE" value="commit -&gt; alleen de mac ver nog." />
   </component>
 </project>
