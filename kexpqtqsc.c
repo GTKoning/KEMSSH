@@ -337,6 +337,9 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     oqs_kex_ctx->tqs_key_a = tqs_key_a;
     oqs_kex_ctx->tqs_key_b = tqs_key_b;
     oqs_kex_ctx->hash_len = hash_len;
+    oqs_kex_ctx->hash = hash;
+    oqs_kex_ctx->tqs_fullkey_size = tqs_fullkey_size;
+    oqs_kex_ctx->tqs_full_key = tqs_full_key;
     ssh->kex->pq_kex_ctx->oqs_kex_ctx = oqs_kex_ctx;
     // Initiate the MAC round trip
     pq_tqs_verinit(type, seq, ssh);
@@ -394,6 +397,9 @@ input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh) {
     PQ_KEX_CTX *pq_kex_ctx = NULL;
     OQS_KEX_CTX *oqs_kex_ctx = NULL;
     struct kex *kex = NULL;
+    struct ssh_hmac_ctx *hash_ctx = NULL;
+    u_char check_digest[16];
+    u_char *macmessage;
     int r = 0;
 
     if (ssh == NULL ||
@@ -407,6 +413,27 @@ input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh) {
 
     if ((r = pq_tqs_s2c_deserialisever(ssh, pq_kex_ctx)) != 0)
         goto out;
+
+    if((hash_ctx = ssh_hmac_start(SSH_DIGEST_SHA256)) == NULL) {
+        printf("ssh_hmac_start failed");
+        goto out;
+    }
+    uint8_t *tmp_macmessage = NULL;
+    uint8_t *tmp_digesta = oqs_kex_ctx->digesta;
+    uint8_t *tmp_hash = oqs_kex_ctx->hash;
+    *tmp_macmessage = *tmp_digesta + *tmp_hash;
+    macmessage = (u_char *) tmp_macmessage;
+
+    if((ssh_hmac_init(hash_ctx, oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size)) < 0 ||
+       (ssh_hmac_update(hash_ctx, macmessage, sizeof(macmessage))) < 0 ||
+       (ssh_hmac_final(hash_ctx, check_digest, sizeof(check_digest))) < 0) {
+        printf("ssh_hmac_xxx failed");
+        goto out;
+    }
+    if(memcmp(check_digest, oqs_kex_ctx->digestb, oqs_kex_ctx->digestlen) != 0) {
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
     out:
     pq_oqs_free(pq_kex_ctx);
     return r;
