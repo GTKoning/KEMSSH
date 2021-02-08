@@ -163,6 +163,7 @@ struct sshkey {
 	u_char	*xmss_pk;
 	/* OQS artefacts */
 	OQS_SIG *oqs_sig;
+    OQS_KEM *oqs_kem;
 	u_char	*oqs_sk;
 	u_char	*oqs_pk;
 	struct sshkey_cert *cert;

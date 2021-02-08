@@ -85,10 +85,12 @@ sshkey_save_private(struct sshkey *key, const char *filename,
 	if ((keyblob = sshbuf_new()) == NULL)
 		return SSH_ERR_ALLOC_FAIL;
 	if ((r = sshkey_private_to_fileblob(key, keyblob, passphrase, comment,
-	    force_new_format, new_format_cipher, new_format_rounds)) != 0)
+	    force_new_format, new_format_cipher, new_format_rounds)) != 0) {
 		goto out;
-	if ((r = sshkey_save_private_blob(keyblob, filename)) != 0)
+    }
+	if ((r = sshkey_save_private_blob(keyblob, filename)) != 0) {
 		goto out;
+    }
 	r = 0;
  out:
 	sshbuf_free(keyblob);
@@ -407,6 +409,7 @@ sshkey_load_private_cert(int type, const char *filename, const char *passphrase,
 	case KEY_ED25519:
 	case KEY_XMSS:
 	CASE_KEY_OQS:
+    CASE_KEY_TQS:
 	CASE_KEY_HYBRID:
 	case KEY_UNSPEC:
 		break;

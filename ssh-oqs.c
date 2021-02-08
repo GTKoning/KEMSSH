@@ -62,6 +62,8 @@ const char* get_oqs_alg_name(int openssh_type)
 		case KEY_P256_SPHINCS_SHAKE256_128F_ROBUST:
 			return OQS_SIG_alg_sphincs_shake256_128f_robust;
 ///// OQS_TEMPLATE_FRAGMENT_OSSH_KT_TO_OQS_METH_END
+        case KEY_KYBER512:
+            return OQS_KEM_alg_kyber_512;
 		default:
 			return NULL;
 	}
@@ -96,6 +98,38 @@ err:
 	free(k->oqs_sk);
 	free(k->oqs_pk);
 	OQS_SIG_free(k->oqs_sig);
+	return ret;
+}
+
+int
+sshkey_tqs_generate_private_key(struct sshkey *k, int type)
+{
+	int ret = SSH_ERR_INTERNAL_ERROR;
+	const char* oqs_alg_name = get_oqs_alg_name(type);
+
+	/* generate PQC key */
+	if ((k->oqs_kem = OQS_KEM_new(oqs_alg_name)) == NULL) {
+		return ret;
+	}
+	if ((k->oqs_sk = malloc(k->oqs_kem->length_secret_key)) == NULL) {
+		ret = SSH_ERR_ALLOC_FAIL;
+		goto err;
+	}
+	if ((k->oqs_pk = malloc(k->oqs_kem->length_public_key)) == NULL) {
+		ret = SSH_ERR_ALLOC_FAIL;
+		goto err;
+	}
+	if (OQS_KEM_keypair(k->oqs_kem, k->oqs_pk, k->oqs_sk) != OQS_SUCCESS) {
+		ret = SSH_ERR_INTERNAL_ERROR;
+		goto err;
+	}
+
+  return 0;
+
+err:
+	free(k->oqs_sk);
+	free(k->oqs_pk);
+	OQS_KEM_free(k->oqs_kem);
 	return ret;
 }
 

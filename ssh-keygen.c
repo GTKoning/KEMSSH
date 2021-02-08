@@ -340,6 +340,9 @@ ask_filename(struct passwd *pw, const char *prompt)
 		case KEY_SPHINCS_SHAKE256_128F_ROBUST:
 			name = _PATH_SSH_CLIENT_ID_SPHINCS_SHAKE256_128F_ROBUST;
 			break;
+        case KEY_KYBER512:
+            name = _PATH_SSH_CLIENT_ID_KYBER512;
+            break;
 ///// OQS_TEMPLATE_FRAGMENT_ASSIGN_PQ_ID_PATHS_END
 		default:
 			fatal("bad key type");
@@ -1086,6 +1089,7 @@ do_gen_all_hostkeys(struct passwd *pw)
 		{ "sphincsharaka128frobust", "SPHINCS_HARAKA_128F_ROBUST", _PATH_HOST_SPHINCS_HARAKA_128F_ROBUST_KEY_FILE },
 		{ "sphincssha256128frobust", "SPHINCS_SHA256_128F_ROBUST", _PATH_HOST_SPHINCS_SHA256_128F_ROBUST_KEY_FILE },
 		{ "sphincsshake256128frobust", "SPHINCS_SHAKE256_128F_ROBUST", _PATH_HOST_SPHINCS_SHAKE256_128F_ROBUST_KEY_FILE },
+        { "kyber512", "KYBER_512", _PATH_HOST_KYBER512_KEY_FILE },
 ///// OQS_TEMPLATE_FRAGMENT_ADD_PQ_KT_END
 #endif /* WITH_PQ_AUTH */
 #ifdef WITH_HYBRID_AUTH
@@ -2897,6 +2901,8 @@ main(int argc, char **argv)
                  _PATH_HOST_SPHINCS_SHA256_128F_ROBUST_KEY_FILE, rr_hostname);
 			n += do_print_resource_record(pw,
                  _PATH_HOST_SPHINCS_SHAKE256_128F_ROBUST_KEY_FILE, rr_hostname);
+			n += do_print_resource_record(pw,
+                 _PATH_HOST_KYBER512_KEY_FILE, rr_hostname);
 ///// OQS_TEMPLATE_FRAGMENT_PRINT_PQ_RR_END
 
 			if (n == 0)

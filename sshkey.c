@@ -594,6 +594,7 @@ sshkey_new(int type)
 	k->xmss_sk = NULL;
 	k->xmss_pk = NULL;
 	k->oqs_sig = NULL;
+    k->oqs_kem = NULL;
 	k->oqs_sk = NULL;
 	k->oqs_pk = NULL;
 	switch (k->type) {
@@ -632,6 +633,7 @@ sshkey_new(int type)
 		/* no need to prealloc */
 		break;
 #ifdef WITH_PQ_AUTH
+    CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* we simply break here to avoid the default clause. PQ processing
 		   is done after the switch statement */
@@ -655,6 +657,12 @@ sshkey_new(int type)
 			return NULL;
 		}
 		break;
+    CASE_KEY_TQS:
+		if ((k->oqs_kem = OQS_KEM_new(get_oqs_alg_name(type))) == NULL) {
+			return NULL;
+		}
+		break;
+
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 
@@ -995,6 +1003,7 @@ to_blob_buf(const struct sshkey *key, struct sshbuf *b, int force_plain,
 		break;
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
+    CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* we simply serialize the type name, key handling is done after the switch statement */
 		if ((ret = sshbuf_put_cstring(b, typename)) != 0)
@@ -1015,6 +1024,12 @@ to_blob_buf(const struct sshkey *key, struct sshbuf *b, int force_plain,
 			return SSH_ERR_INVALID_ARGUMENT;
 		}
 		if ((ret = sshbuf_put_string(b, key->oqs_pk, key->oqs_sig->length_public_key)) != 0)
+			return ret;
+    CASE_KEY_TQS:
+		if (key->oqs_pk == NULL) {
+			return SSH_ERR_INVALID_ARGUMENT;
+		}
+		if ((ret = sshbuf_put_string(b, key->oqs_pk, key->oqs_kem->length_public_key)) != 0)
 			return ret;
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
@@ -1901,6 +1916,7 @@ sshkey_generate(int type, u_int bits, struct sshkey **keyp)
 		break;
 #endif /* WITH_OPENSSL */
 #ifdef WITH_PQ_AUTH
+    CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* we simply break here to avoid the default clause. PQ processing
 		   is done after the switch statement */
@@ -1917,6 +1933,8 @@ sshkey_generate(int type, u_int bits, struct sshkey **keyp)
 	CASE_KEY_OQS:
 	CASE_KEY_HYBRID:
 		ret = sshkey_oqs_generate_private_key(k, type);
+    CASE_KEY_TQS:
+        ret = sshkey_tqs_generate_private_key(k, type);
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 
@@ -2125,6 +2143,7 @@ sshkey_from_private(const struct sshkey *k, struct sshkey **pkp)
 		break;
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
+    CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* we simply create the key, handling is done after the switch statement */
 		if ((n = sshkey_new(k->type)) == NULL) {
@@ -2151,6 +2170,15 @@ sshkey_from_private(const struct sshkey *k, struct sshkey **pkp)
 				goto out;
 			}
 			memcpy(n->oqs_pk, k->oqs_pk, k->oqs_sig->length_public_key);
+		}
+    CASE_KEY_TQS:
+		if (k->oqs_pk != NULL) {
+			if ((n->oqs_pk = malloc(n->oqs_kem->length_public_key)) == NULL) {
+				sshkey_free(n);
+				r = SSH_ERR_ALLOC_FAIL;
+				goto out;
+			}
+			memcpy(n->oqs_pk, k->oqs_pk, k->oqs_kem->length_public_key);
 		}
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
@@ -3394,6 +3422,7 @@ sshkey_private_serialize_opt(const struct sshkey *key, struct sshbuf *b,
 		break;
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
+    CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* we simply break here to avoid the default clause. PQ processing
 		   is done after the switch statement */
@@ -3417,6 +3446,13 @@ sshkey_private_serialize_opt(const struct sshkey *key, struct sshbuf *b,
 		    key->oqs_sig->length_secret_key)) != 0)
 			goto out;
 		break;
+    CASE_KEY_TQS:
+        if ((r = sshbuf_put_string(b, key->oqs_pk,
+		    key->oqs_kem->length_public_key)) != 0 ||
+		    (r = sshbuf_put_string(b, key->oqs_sk,
+		    key->oqs_kem->length_secret_key)) != 0)
+			goto out;
+        break;
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 
@@ -4025,6 +4061,7 @@ sshkey_private_to_blob2(const struct sshkey *prv, struct sshbuf *blob,
 		r = SSH_ERR_KEY_UNKNOWN_CIPHER;
 		goto out;
 	}
+
 	if ((r = cipher_init(&ciphercontext, cipher, key, keylen,
 	    key + keylen, ivlen, 1)) != 0)
 		goto out;
@@ -4425,6 +4462,7 @@ sshkey_private_to_fileblob(struct sshkey *key, struct sshbuf *blob,
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
+    CASE_KEY_TQS:
 #endif /* WITH_PQ_AUTH */
 #ifdef WITH_HYBRID_AUTH
 	CASE_KEY_HYBRID:

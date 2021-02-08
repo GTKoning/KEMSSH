@@ -8,4 +8,6 @@ int sshkey_oqs_generate_private_key(struct sshkey *, int);
 int ssh_oqs_sign(const struct sshkey *, u_char **, size_t *, const u_char *, size_t, u_int);
 int ssh_oqs_verify(const struct sshkey *, const u_char *, size_t, const u_char *, size_t, u_int);
 
+int
+sshkey_tqs_generate_private_key(struct sshkey *k, int type);
 #endif /* SSH_OQS_H */
