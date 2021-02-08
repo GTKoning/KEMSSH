@@ -411,8 +411,9 @@ input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh) {
         goto out;
     }
 
-    if ((r = pq_tqs_s2c_deserialisever(ssh, pq_kex_ctx)) != 0)
+    if ((r = pq_tqs_s2c_deserialisever(ssh, pq_kex_ctx)) != 0) {
         goto out;
+    }
 
     if((hash_ctx = ssh_hmac_start(SSH_DIGEST_SHA256)) == NULL) {
         printf("ssh_hmac_start failed");

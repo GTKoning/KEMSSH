@@ -65,9 +65,9 @@
     <property name="settings.editor.selected.configurable" value="CLionExternalConfigurable" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
   </component>
@@ -86,7 +86,8 @@
       <workItem from="1606995611984" duration="538000" />
       <workItem from="1606996166649" duration="5471000" />
       <workItem from="1607512653064" duration="75326000" />
-      <workItem from="1610459827260" duration="54960000" />
+      <workItem from="1610459827260" duration="55707000" />
+      <workItem from="1612787249905" duration="822000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>
@@ -151,7 +152,14 @@
       <option name="project" value="LOCAL" />
       <updated>1612782445799</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="mac - check client side">
+      <created>1612785033263</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1612785033263</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
