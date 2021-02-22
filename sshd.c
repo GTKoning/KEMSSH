@@ -729,6 +729,7 @@ list_hostkey_types(void)
 		case KEY_XMSS:
 		CASE_KEY_OQS:
 		CASE_KEY_HYBRID:
+		CASE_KEY_TQS:
 			append_hostkey_type(b, sshkey_ssh_name(key));
 			break;
 		}

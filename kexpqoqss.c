@@ -169,7 +169,7 @@ pq_oqs_server(struct ssh *ssh) {
 		goto out;
 	}
 
-	debug("expecting %i msg", oqs_ssh2_init_msg(oqs_alg));
+	debug("expecting %i msg init", oqs_ssh2_init_msg(oqs_alg));
 	ssh_dispatch_set(ssh, oqs_ssh2_init_msg(oqs_alg),
 		&input_pq_oqs_init);
 

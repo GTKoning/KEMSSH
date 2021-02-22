@@ -207,7 +207,7 @@ pq_oqs_client(struct ssh *ssh) {
 		goto out;
 
 	/* Set handler for recieving server reply */
-	debug("expecting %i msg", oqs_ssh2_reply_msg(oqs_alg));
+	debug("expecting %i msg reply", oqs_ssh2_reply_msg(oqs_alg));
 	ssh_dispatch_set(ssh, oqs_ssh2_reply_msg(oqs_alg),
 		&input_pq_oqs_reply);
 

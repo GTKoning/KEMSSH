@@ -99,13 +99,14 @@ sshbuf_get_string(struct sshbuf *buf, u_char **valp, size_t *lenp)
 	const u_char *val;
 	size_t len;
 	int r;
-
 	if (valp != NULL)
 		*valp = NULL;
 	if (lenp != NULL)
 		*lenp = 0;
-	if ((r = sshbuf_get_string_direct(buf, &val, &len)) < 0)
-		return r;
+	if ((r = sshbuf_get_string_direct(buf, &val, &len)) < 0) {
+	    error(" This is the sshbuf_get_string_direct output %i", r);
+        return r;
+    }
 	if (valp != NULL) {
 		if ((*valp = malloc(len + 1)) == NULL) {
 			SSHBUF_DBG(("SSH_ERR_ALLOC_FAIL"));
@@ -131,8 +132,11 @@ sshbuf_get_string_direct(struct sshbuf *buf, const u_char **valp, size_t *lenp)
 		*valp = NULL;
 	if (lenp != NULL)
 		*lenp = 0;
-	if ((r = sshbuf_peek_string_direct(buf, &p, &len)) < 0)
-		return r;
+
+	if ((r = sshbuf_peek_string_direct(buf, &p, &len)) < 0) {
+        error(" sshbuf_peek_string_direct crashes with %i ", r);
+        return r;
+    }
 	if (valp != NULL)
 		*valp = p;
 	if (lenp != NULL)

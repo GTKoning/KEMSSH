@@ -47,11 +47,12 @@ pq_tqs_c2s_deserialise(struct ssh *ssh,
                        PQ_KEX_CTX *pq_kex_ctx) {
 
     int r = 0;
-
-    if ((r = tqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER) != 0))
+    if ((r = tqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER) != 0)) {
+        error(" this is r %i", r);
         goto out;
-
+    }
     r = sshpkt_get_end(ssh);
+
 
     out:
     return r;
@@ -173,7 +174,7 @@ pq_tqs_server(struct ssh *ssh) {
         goto out;
     }
 
-    debug("expecting %i msg", tqs_ssh2_init_msg(oqs_alg));
+    debug("expecting %i msg init tqs serverside", tqs_ssh2_init_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_init_msg(oqs_alg),
                      &input_pq_tqs_init);
 
@@ -184,7 +185,6 @@ pq_tqs_server(struct ssh *ssh) {
 static int
 input_pq_tqs_init(int type, u_int32_t seq,
                   struct ssh *ssh) {
-
     PQ_KEX_CTX *pq_kex_ctx = NULL;
     OQS_KEX_CTX *oqs_kex_ctx = NULL;
     const OQS_ALG *oqs_alg = NULL;
@@ -212,28 +212,32 @@ input_pq_tqs_init(int type, u_int32_t seq,
         goto out;
     }
 
+
     /* Load public and private host key */
     if ((r = pq_tqs_server_hostkey(ssh, &server_host_public,
                                    &server_host_private, &server_host_key_blob,
                                    &server_host_key_blob_len)) != 0)
         goto out;
-
     /* Packet comes in */
     /* Deserialise client to server packet */
     /* Gets public key of client (and length) stored in remote_msg */
     if ((r = pq_tqs_c2s_deserialise(ssh, pq_kex_ctx)) != 0)
         goto out;
-
+    error(" Ik ben hier gekomen" );
     /*
      * libOQS API only supports generating the liboqs public key
      * msg and shared secret simultaneously.
      */
 
 
-    if ((r = tqs_server_gen_msg_and_ss(oqs_kex_ctx,
-                                       &tqs_key_b, &tqs_halfkey_size, &oqs_shared_secret, &oqs_shared_secret_len)) != 0)
-        goto out;
 
+    if ((r = tqs_server_gen_msg_and_ss(oqs_kex_ctx,
+                                       &tqs_key_b, &tqs_halfkey_size, &oqs_shared_secret, &oqs_shared_secret_len)) != 0) {
+        error( " R output is hier dan toch echt %i", r);
+        goto out;
+    }
+
+    error(" Ik ben hier gekomen 1" );
 
     // K_b, ct_b made.
 
@@ -265,7 +269,7 @@ input_pq_tqs_init(int type, u_int32_t seq,
     // We are receiving ct_a -> to make our key with
     // BUT HOW
     ssh->kex->pq_kex_ctx = pq_kex_ctx;
-    debug("expecting %i msg", tqs_ssh2_sendct_msg(oqs_alg));
+    debug("expecting %i msg sendct", tqs_ssh2_sendct_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_sendct_msg(oqs_alg),
                      &input_pq_tqs_finish);
 
@@ -347,7 +351,7 @@ input_pq_tqs_finish(int type, u_int32_t seq,
         r = kex_send_newkeys(ssh);
 
     /* Set handler for recieving client verification initiation */
-    debug("expecting %i msg", tqs_ssh2_verinit_msg(oqs_alg));
+    debug("expecting %i msg verinit", tqs_ssh2_verinit_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_verinit_msg(oqs_alg),
                      &input_pq_tqs_verinit);
     out:

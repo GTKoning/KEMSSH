@@ -331,9 +331,9 @@ int
 tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
     // get cta if its there
-    sshpkt_get_string(ssh, &(oqs_kex_ctx->tqs_ct_a), &(oqs_kex_ctx->tqs_ct_a_len));
+    int r = 0;
+    r = sshpkt_get_string(ssh, &(oqs_kex_ctx->tqs_ct_a), &(oqs_kex_ctx->tqs_ct_a_len));
     // So we got the pk
-
     return sshpkt_get_string(ssh, &(oqs_kex_ctx->oqs_remote_msg),
 		&(oqs_kex_ctx->oqs_remote_msg_len));
 }
@@ -364,9 +364,7 @@ tqs_deserialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_or
 int
 tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
-    if(oqs_kex_ctx->tqs_ct_a != NULL){
-        sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len);
-    }
+    sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len);
 
 	return sshpkt_put_string(ssh, oqs_kex_ctx->oqs_local_msg,
 		oqs_kex_ctx->oqs_local_msg_len);
@@ -496,30 +494,41 @@ tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
+
 	if ((tmp_tqs_key_b = malloc(oqs_kem->length_shared_secret)) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
+
 
 	if (OQS_KEM_encaps(oqs_kem, tmp_tqs_ct_b, tmp_tqs_key_b,
 		oqs_kex_ctx->oqs_remote_msg) != OQS_SUCCESS) {
 				r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
+    error(" Here is a printed r of kextqs.c %i", r);
 
 	*tqs_key_b = (u_char *) tmp_tqs_key_b;
 	oqs_kex_ctx->tqs_key_b = tmp_tqs_key_b;
 	*tqs_halfkey_size = oqs_kem->length_shared_secret;
 	// ct set
     *oqs_shared_secret = (u_char *) tmp_tqs_key_b;
+    error(" Checkpoint 1:  %i", r);
     *oqs_shared_secret_len = oqs_kex_ctx->oqs_kem->length_shared_secret;
+    error(" Checkpoint 2:  %i", r);
 	oqs_kex_ctx->tqs_ct_b = tmp_tqs_ct_b;
+    error(" Checkpoint 3:  %i", r);
 	oqs_kex_ctx->tqs_ct_b_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
+
+
 
     tmp_tqs_key_b = NULL;
     tmp_tqs_ct_b = NULL;
 
+    return r;
+
 out:
+    error(" Te laat ");
 	if (oqs_kem != NULL) {
 		OQS_KEM_free(oqs_kem);
 	}

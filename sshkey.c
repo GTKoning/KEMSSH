@@ -1949,8 +1949,10 @@ sshkey_generate(int type, u_int bits, struct sshkey **keyp)
 	CASE_KEY_OQS:
 	CASE_KEY_HYBRID:
 		ret = sshkey_oqs_generate_private_key(k, type);
+		break;
     CASE_KEY_TQS:
         ret = sshkey_tqs_generate_private_key(k, type);
+        break;
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 
@@ -2187,6 +2189,7 @@ sshkey_from_private(const struct sshkey *k, struct sshkey **pkp)
 			}
 			memcpy(n->oqs_pk, k->oqs_pk, k->oqs_sig->length_public_key);
 		}
+		break;
     CASE_KEY_TQS:
 		if (k->oqs_pk != NULL || n->oqs_kem != NULL) {
 			if ((n->oqs_pk = malloc(n->oqs_kem->length_public_key)) == NULL) {
@@ -2196,6 +2199,7 @@ sshkey_from_private(const struct sshkey *k, struct sshkey **pkp)
 			}
 			memcpy(n->oqs_pk, k->oqs_pk, k->oqs_kem->length_public_key);
 		}
+		break;
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 	if (sshkey_is_cert(k) && (r = sshkey_cert_copy(k, n)) != 0)
@@ -3757,7 +3761,7 @@ sshkey_private_deserialize(struct sshbuf *buf, struct sshkey **kp)
 #ifdef WITH_PQ_AUTH
 	// HIER MOET EIGEN CASE TQS AUTH KEM
 	// Is het mogelijk om gewoon te mergen? Nee. Vind mogelijkheid case Kyber512
-	case KEY_KYBER512:
+	CASE_KEY_TQS:
         if ((k = sshkey_new(type)) == NULL) {
             r = SSH_ERR_ALLOC_FAIL;
             goto out;
@@ -3794,7 +3798,20 @@ sshkey_private_deserialize(struct sshbuf *buf, struct sshkey **kp)
 		k->oqs_sk = oqs_sk;
 		oqs_pk = oqs_sk = NULL;
 		break;
+	CASE_KEY_TQS:
+        if ((r = sshbuf_get_string(buf, &oqs_pk, &pklen)) != 0 ||
+            (r = sshbuf_get_string(buf, &oqs_sk, &sklen)) != 0)
+            goto out;
+        if (pklen != k->oqs_kem->length_public_key || sklen != k->oqs_kem->length_secret_key) {
+            r = SSH_ERR_INVALID_FORMAT;
+            goto out;
+        }
+        k->oqs_pk = oqs_pk;
+        k->oqs_sk = oqs_sk;
+        oqs_pk = oqs_sk = NULL;
+        break;
 	}
+
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 #ifdef WITH_OPENSSL
 	/* enable blinding */

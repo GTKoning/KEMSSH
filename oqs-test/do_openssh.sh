@@ -29,7 +29,7 @@ cat "${PREFIX}"/ssh_client/*.pub >> "${PREFIX}"/ssh_server/authorized_keys
   -o "KexAlgorithms=${KEXALG}" \
   -o "AuthorizedKeysFile=${PREFIX}/ssh_server/authorized_keys" \
   -o "HostKeyAlgorithms=${SIGALG}" \
-  -o "PubkeyAcceptedKeyTypes=${SIGALG}" \
+  -o "PubkeyAcceptedKeyTypes=${SIGALG},ssh-ed25519" \
   -o "StrictModes=no" \
   -h "${PREFIX}/ssh_server/id_${SIGALG}" \
   >> ${PREFIX}/server_log.txt 2>&1 &
@@ -54,7 +54,7 @@ SERVER_PID=$!
   -o "HostKeyAlgorithms=${SIGALG}" \
   -o "PubkeyAcceptedKeyTypes=${SIGALG}" \
   -o StrictHostKeyChecking=no \
-  -i "${PREFIX}/ssh_client/id_${SIGALG}" \
+  -i "${PREFIX}/ssh_client/id_ssh-ed25519" \
   "exit" \
   >> ${PREFIX}/client_log.txt 2>&1
 

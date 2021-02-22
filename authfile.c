@@ -237,10 +237,8 @@ sshkey_load_private(const char *filename, const char *passphrase,
 	int r, fd;
 
 	if (keyp != NULL)
-	    printf(" keyp is NULL");
 		*keyp = NULL;
 	if (commentp != NULL)
-        printf(" commentp is NULL");
 		*commentp = NULL;
 
 	if ((fd = open(filename, O_RDONLY)) < 0)

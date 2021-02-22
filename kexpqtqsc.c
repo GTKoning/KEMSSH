@@ -186,13 +186,14 @@ pq_tqs_client(struct ssh *ssh) {
 
     /* Basically sends pk_a, it's in ctx as local msg and local private is sk_a. Do keep track of local msg as this can be overwritten */
     /* Send client PQ-only liboqs packet to server */
+
     if ((r = sshpkt_start(ssh, tqs_ssh2_init_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_c2s_serialise(ssh, pq_kex_ctx)) != 0 ||
         (r = sshpkt_send(ssh)) != 0)
         goto out;
 
     /* Set handler for recieving server reply */
-    debug("expecting %i msg", tqs_ssh2_reply_msg(oqs_alg));
+    debug("expecting %i msg reply", tqs_ssh2_reply_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_reply_msg(oqs_alg),
                      &input_pq_tqs_reply);
     /* pk_a sent, waiting for pk_b, ct_b */
@@ -384,7 +385,7 @@ pq_tqs_verinit(int type, u_int32_t seq, struct ssh *ssh) {
         (r = sshpkt_send(ssh)) != 0)
         goto out;
 
-    debug("expecting %i msg", tqs_ssh2_verreply_msg(oqs_alg));
+    debug("expecting %i msg verreply", tqs_ssh2_verreply_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_verreply_msg(oqs_alg),
                      &input_pq_tqs_verreply);
     out:
