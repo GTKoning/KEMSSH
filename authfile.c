@@ -237,8 +237,10 @@ sshkey_load_private(const char *filename, const char *passphrase,
 	int r, fd;
 
 	if (keyp != NULL)
+	    printf(" keyp is NULL");
 		*keyp = NULL;
 	if (commentp != NULL)
+        printf(" commentp is NULL");
 		*commentp = NULL;
 
 	if ((fd = open(filename, O_RDONLY)) < 0)
@@ -249,9 +251,9 @@ sshkey_load_private(const char *filename, const char *passphrase,
 	}
 
 	if ((buffer = sshbuf_new()) == NULL) {
-		r = SSH_ERR_ALLOC_FAIL;
-		goto out;
-	}
+        r = SSH_ERR_ALLOC_FAIL;
+        goto out;
+    }
 	if ((r = sshkey_load_file(fd, buffer)) != 0 ||
 	    (r = sshkey_parse_private_fileblob(buffer, passphrase, keyp,
 	    commentp)) != 0)

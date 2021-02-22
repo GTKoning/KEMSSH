@@ -2188,7 +2188,7 @@ sshkey_from_private(const struct sshkey *k, struct sshkey **pkp)
 			memcpy(n->oqs_pk, k->oqs_pk, k->oqs_sig->length_public_key);
 		}
     CASE_KEY_TQS:
-		if (k->oqs_pk != NULL) {
+		if (k->oqs_pk != NULL || n->oqs_kem != NULL) {
 			if ((n->oqs_pk = malloc(n->oqs_kem->length_public_key)) == NULL) {
 				sshkey_free(n);
 				r = SSH_ERR_ALLOC_FAIL;
@@ -4695,8 +4695,7 @@ sshkey_parse_private_fileblob_type(struct sshbuf *blob, int type,
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
-// ADDED FOR TQS
-	case KEY_KYBER512:
+	CASE_KEY_TQS:
 #endif /* WITH_PQ_AUTH */
 #ifdef WITH_HYBRID_AUTH
 	CASE_KEY_HYBRID:

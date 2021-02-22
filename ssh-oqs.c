@@ -4,7 +4,6 @@
 
 #include <string.h>
 #include <oqs/oqs.h>
-
 #include "sshbuf.h"
 #include "ssherr.h"
 #include "ssh-oqs.h"
@@ -108,6 +107,7 @@ sshkey_tqs_generate_private_key(struct sshkey *k, int type)
 	const char* oqs_alg_name = get_oqs_alg_name(type);
 
 	/* generate PQC key */
+	printf("%s\n", oqs_alg_name);
 	if ((k->oqs_kem = OQS_KEM_new(oqs_alg_name)) == NULL) {
 		return ret;
 	}

@@ -307,6 +307,9 @@ ask_filename(struct passwd *pw, const char *prompt)
 			name = _PATH_SSH_CLIENT_ID_XMSS;
 			break;
 ///// OQS_TEMPLATE_FRAGMENT_ASSIGN_PQ_ID_PATHS_START
+        case KEY_KYBER512:
+            name = _PATH_SSH_CLIENT_ID_KYBER512;
+            break;
 		case KEY_OQSDEFAULT:
 			name = _PATH_SSH_CLIENT_ID_OQSDEFAULT;
 			break;
@@ -340,9 +343,6 @@ ask_filename(struct passwd *pw, const char *prompt)
 		case KEY_SPHINCS_SHAKE256_128F_ROBUST:
 			name = _PATH_SSH_CLIENT_ID_SPHINCS_SHAKE256_128F_ROBUST;
 			break;
-        case KEY_KYBER512:
-            name = _PATH_SSH_CLIENT_ID_KYBER512;
-            break;
 ///// OQS_TEMPLATE_FRAGMENT_ASSIGN_PQ_ID_PATHS_END
 		default:
 			fatal("bad key type");
@@ -2881,6 +2881,7 @@ main(int argc, char **argv)
 ///// OQS_TEMPLATE_FRAGMENT_PRINT_PQ_RR_START
 			n += do_print_resource_record(pw,
                  _PATH_HOST_OQSDEFAULT_KEY_FILE, rr_hostname);
+            n += do_print_resource_record(pw, _PATH_HOST_KYBER512_KEY_FILE, rr_hostname);
 			n += do_print_resource_record(pw,
                  _PATH_HOST_DILITHIUM_2_KEY_FILE, rr_hostname);
 			n += do_print_resource_record(pw,
@@ -2901,8 +2902,7 @@ main(int argc, char **argv)
                  _PATH_HOST_SPHINCS_SHA256_128F_ROBUST_KEY_FILE, rr_hostname);
 			n += do_print_resource_record(pw,
                  _PATH_HOST_SPHINCS_SHAKE256_128F_ROBUST_KEY_FILE, rr_hostname);
-			n += do_print_resource_record(pw,
-                 _PATH_HOST_KYBER512_KEY_FILE, rr_hostname);
+
 ///// OQS_TEMPLATE_FRAGMENT_PRINT_PQ_RR_END
 
 			if (n == 0)
@@ -2996,10 +2996,12 @@ main(int argc, char **argv)
 		printf("%s already exists.\n", identity_file);
 		printf("Overwrite (y/n)? ");
 		fflush(stdout);
+		/*
 		if (fgets(yesno, sizeof(yesno), stdin) == NULL)
 			exit(1);
 		if (yesno[0] != 'y' && yesno[0] != 'Y')
 			exit(1);
+		*/
 	}
 	/* Ask for a passphrase (twice). */
 	if (identity_passphrase)

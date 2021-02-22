@@ -1771,7 +1771,7 @@ main(int ac, char **av)
 			    options.host_key_files[i], ssh_err(r));
 		if ((r = sshkey_load_public(options.host_key_files[i],
 		    &pubkey, NULL)) != 0 && r != SSH_ERR_SYSTEM_ERROR)
-			error("Error loading host key \"%s\": %s",
+			error("Error loading host key PUBLIC \"%s\": %s",
 			    options.host_key_files[i], ssh_err(r));
 		if (pubkey == NULL && key != NULL)
 			if ((r = sshkey_from_private(key, &pubkey)) != 0)

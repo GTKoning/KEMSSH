@@ -27,9 +27,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="mac - check client side">
+    <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="Fix MAC">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/authfile.c" beforeDir="false" afterPath="$PROJECT_DIR$/authfile.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oqs-test/do_openssh.sh" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/do_openssh.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oqs-test/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oqs-test/test_openssh.py" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/test_openssh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ssh-keygen.c" beforeDir="false" afterPath="$PROJECT_DIR$/ssh-keygen.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ssh-oqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/ssh-oqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ssh_host_kyber512" beforeDir="false" afterPath="$PROJECT_DIR$/ssh_host_kyber512" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ssh_host_kyber512.pub" beforeDir="false" afterPath="$PROJECT_DIR$/ssh_host_kyber512.pub" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sshd.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshd.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sshkey.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshkey.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +96,7 @@
       <workItem from="1606996166649" duration="5471000" />
       <workItem from="1607512653064" duration="75326000" />
       <workItem from="1610459827260" duration="55707000" />
-      <workItem from="1612787249905" duration="822000" />
+      <workItem from="1612787249905" duration="26920000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>
@@ -159,7 +168,14 @@
       <option name="project" value="LOCAL" />
       <updated>1612785033263</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Fix MAC">
+      <created>1612788098764</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1612788098764</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -186,6 +202,7 @@
     <MESSAGE value="commit -&gt; encap decap struggles" />
     <MESSAGE value="commit -&gt; alleen de mac ver nog." />
     <MESSAGE value="mac - check client side" />
-    <option name="LAST_COMMIT_MESSAGE" value="mac - check client side" />
+    <MESSAGE value="Fix MAC" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix MAC" />
   </component>
 </project>
