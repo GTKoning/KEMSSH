@@ -50,8 +50,11 @@ pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
     // where do they store the pk_b? in the blob, where do they store the ct_b? in pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg (en length)
     if ((r = pq_tqs_deserialise_hostkey(ssh, server_host_key,
                                         server_host_key_blob, server_host_key_blob_len)) != 0 ||
-        (r = tqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT)) != 0)
+        (r = tqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT)) != 0) {
+        error(" remote msg is %s", pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg);
+        error("r is %i", r);
         goto out;
+    }
 
     r = sshpkt_get_end(ssh);
 
@@ -61,7 +64,7 @@ pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
 static int
 pq_tqs_s2c_deserialisever(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx){
     int r = 0;
-    if(r = tqs_deserialisever(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT) != 0)
+    if((r = tqs_deserialisever(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT) != 0))
         goto out;
     r = sshpkt_get_end(ssh);
     out:
@@ -180,6 +183,8 @@ pq_tqs_client(struct ssh *ssh) {
         goto out;
     }
 
+
+
     /* Generate oqs public key */
     if ((r = tqs_client_gen(oqs_kex_ctx)) != 0)
         goto out;
@@ -250,7 +255,7 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
                                     &server_host_key, &server_host_key_blob,
                                     &server_host_key_blob_len)) != 0)
         goto out;
-
+    error("komen we hier uberhaupt, nee");
 
     // Getting the shared secret by decapsulating -> not the way we want to do it actually.
     // Wij willen eerst encapsulaten, dus deze functie moet worden aangepast.

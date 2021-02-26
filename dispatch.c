@@ -129,7 +129,6 @@ void
 ssh_dispatch_run_fatal(struct ssh *ssh, int mode, volatile sig_atomic_t *done)
 {
 	int r;
-
 	if ((r = ssh_dispatch_run(ssh, mode, done)) != 0)
 		sshpkt_fatal(ssh, __func__, r);
 }

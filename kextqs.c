@@ -13,6 +13,7 @@
 #include "kexoqs.h"
 #include "kextqs.h"
 #include "sshkey.h"
+#include "log.h"
 
 /*
  * Mapping that maps relevant named SSH key exchange methods to the needed
@@ -333,7 +334,7 @@ tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
     // get cta if its there
     int r = 0;
     r = sshpkt_get_string(ssh, &(oqs_kex_ctx->tqs_ct_a), &(oqs_kex_ctx->tqs_ct_a_len));
-    // So we got the pk
+    // So we got the pk (or do we?) -> sshpkt_get_string consumes the entire string...
     return sshpkt_get_string(ssh, &(oqs_kex_ctx->oqs_remote_msg),
 		&(oqs_kex_ctx->oqs_remote_msg_len));
 }
@@ -513,11 +514,12 @@ tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
 	*tqs_halfkey_size = oqs_kem->length_shared_secret;
 	// ct set
     *oqs_shared_secret = (u_char *) tmp_tqs_key_b;
+    oqs_kex_ctx->oqs_kem = oqs_kem;
     error(" Checkpoint 1:  %i", r);
     *oqs_shared_secret_len = oqs_kex_ctx->oqs_kem->length_shared_secret;
-    error(" Checkpoint 2:  %i", r);
+    error(" Checkpoint 2:  %i \n Checkpoint 2.5: %i", r, oqs_kex_ctx->oqs_kem->length_shared_secret);
 	oqs_kex_ctx->tqs_ct_b = tmp_tqs_ct_b;
-    error(" Checkpoint 3:  %i", r);
+    error(" Checkpoint 3:  %i \n Checkpoint 3.5: %s", r, tqs_key_b);
 	oqs_kex_ctx->tqs_ct_b_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
 
 
@@ -528,7 +530,6 @@ tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
     return r;
 
 out:
-    error(" Te laat ");
 	if (oqs_kem != NULL) {
 		OQS_KEM_free(oqs_kem);
 	}

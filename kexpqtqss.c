@@ -223,7 +223,6 @@ input_pq_tqs_init(int type, u_int32_t seq,
     /* Gets public key of client (and length) stored in remote_msg */
     if ((r = pq_tqs_c2s_deserialise(ssh, pq_kex_ctx)) != 0)
         goto out;
-    error(" Ik ben hier gekomen" );
     /*
      * libOQS API only supports generating the liboqs public key
      * msg and shared secret simultaneously.
@@ -233,7 +232,6 @@ input_pq_tqs_init(int type, u_int32_t seq,
 
     if ((r = tqs_server_gen_msg_and_ss(oqs_kex_ctx,
                                        &tqs_key_b, &tqs_halfkey_size, &oqs_shared_secret, &oqs_shared_secret_len)) != 0) {
-        error( " R output is hier dan toch echt %i", r);
         goto out;
     }
 
@@ -243,6 +241,7 @@ input_pq_tqs_init(int type, u_int32_t seq,
 
     if ((oqs_alg = oqs_mapping(pq_kex_ctx->pq_kex_name)) == NULL) {
         error("Unsupported libOQS algorithm \"%.100s\"", pq_kex_ctx->pq_kex_name);
+        error("This is not supposed to happen oqs_alg mapping failed");
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }

@@ -29,18 +29,11 @@
   <component name="ChangeListManager">
     <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="Fix MAC">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authfile.c" beforeDir="false" afterPath="$PROJECT_DIR$/authfile.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexhyecdhoqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexhyecdhoqsc.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexhyecdhoqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexhyecdhoqss.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexpqoqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqoqsc.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexpqoqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqoqss.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dispatch.c" beforeDir="false" afterPath="$PROJECT_DIR$/dispatch.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oqs-test/do_openssh.sh" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/do_openssh.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sshbuf-getput-basic.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshbuf-getput-basic.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sshd.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshd.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sshkey.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshkey.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,9 +69,9 @@
     <property name="settings.editor.selected.configurable" value="CLionExternalConfigurable" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
   </component>
@@ -99,6 +92,9 @@
       <workItem from="1607512653064" duration="75326000" />
       <workItem from="1610459827260" duration="55707000" />
       <workItem from="1612787249905" duration="26920000" />
+      <workItem from="1614087131563" duration="1290000" />
+      <workItem from="1614158026026" duration="5081000" />
+      <workItem from="1614332371737" duration="3362000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>
