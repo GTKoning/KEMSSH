@@ -334,7 +334,7 @@ tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
     // get cta if its there
     int r = 0;
     r = sshpkt_get_string(ssh, &(oqs_kex_ctx->tqs_ct_a), &(oqs_kex_ctx->tqs_ct_a_len));
-    // So we got the pk (or do we?) -> sshpkt_get_string consumes the entire string...
+    // So we got the pk (or do we?) -> sshpkt_get_string consumes the entire buffer...
     return sshpkt_get_string(ssh, &(oqs_kex_ctx->oqs_remote_msg),
 		&(oqs_kex_ctx->oqs_remote_msg_len));
 }
