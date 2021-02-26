@@ -83,7 +83,7 @@ pq_tqs_s2c_serialise(struct ssh *ssh,
 
     if ((r = sshpkt_put_string(ssh, server_host_key_blob,
                                server_host_key_blob_len)) != 0 ||
-        (r = tqs_serialise2(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0)
+        (r = tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0)
         goto out;
 
 
