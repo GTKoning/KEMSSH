@@ -255,15 +255,16 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
                                     &server_host_key, &server_host_key_blob,
                                     &server_host_key_blob_len)) != 0)
         goto out;
-    error("komen we hier uberhaupt, nee");
+
 
     // Getting the shared secret by decapsulating -> not the way we want to do it actually.
     // Wij willen eerst encapsulaten, dus deze functie moet worden aangepast.
     // Sws moet de struct eigenlijk worden meegegeven als argument(denk ik).
     // Probeer met enkel het blob
     if ((r = tqs_client_shared_secret(oqs_kex_ctx, &tqs_key_a, &tqs_key_b, &tqs_full_key, &tqs_fullkey_size,
-                                      &tqs_halfkey_size, &server_host_key)) != 0)
+                                      &tqs_halfkey_size, &server_host_key)) != 0) {
         goto out;
+    }
 
     /*
      * Compute exchange hash

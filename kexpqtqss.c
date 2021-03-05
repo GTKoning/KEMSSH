@@ -80,11 +80,13 @@ pq_tqs_s2c_serialise(struct ssh *ssh,
                      size_t server_host_key_blob_len) {
 
     int r = 0;
-
+    error(" Ik ben hier gekomen 1" );
     if ((r = sshpkt_put_string(ssh, server_host_key_blob,
                                server_host_key_blob_len)) != 0 ||
-        (r = tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0)
+        (r = tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0){
         goto out;
+    }
+    error(" HERE IS THE PUBLIC KEY OF SERVER %s", ssh->kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_msg);
 
 
     out:
@@ -235,7 +237,7 @@ input_pq_tqs_init(int type, u_int32_t seq,
         goto out;
     }
 
-    error(" Ik ben hier gekomen 1" );
+
 
     // K_b, ct_b made.
 
@@ -248,6 +250,7 @@ input_pq_tqs_init(int type, u_int32_t seq,
     // Need to send ct_b and pk_b -> use serialise 2 in s2c :)
     // Also, where is pk_b currently stored?
     // Now it makes sense! that's why the blobs are made.
+    pq_kex_ctx->oqs_kex_ctx->tqs_ct_a_len = sizeof(pq_kex_ctx->oqs_kex_ctx->tqs_ct_a);
     if ((r = sshpkt_start(ssh, oqs_ssh2_reply_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_s2c_serialise(ssh, pq_kex_ctx, server_host_key_blob,
                                   server_host_key_blob_len)) != 0 ||

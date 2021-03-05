@@ -396,10 +396,14 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
     *tqs_halfkey_size = oqs_kex_ctx->oqs_kem->length_shared_secret;
     *tqs_fullkey_size = 2*sizeof(oqs_kex_ctx->oqs_kem->length_shared_secret);
 
+
 	int r = 0;
     // checks ct_b length
 	if (oqs_kex_ctx->oqs_remote_msg_len != oqs_kex_ctx->oqs_kem->length_ciphertext) {
 		r = SSH_ERR_INVALID_FORMAT;
+		error("Size of remote msg: %li", oqs_kex_ctx->oqs_remote_msg_len);
+        error("Size of ciphertext expected: %li", oqs_kex_ctx->oqs_kem->length_ciphertext);
+        error("Current problem checkpoint");
 		goto out;
 	}
 	//Make space for tmp server host key

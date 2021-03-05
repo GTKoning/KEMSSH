@@ -161,7 +161,7 @@ sshbuf_peek_string_direct(const struct sshbuf *buf, const u_char **valp,
 		*valp = NULL;
 	if (lenp != NULL)
 		*lenp = 0;
-	error(" print sshbuf_len(buf): %i", sshbuf_len(buf));
+    // error(" print sshbuf_len(buf): %i", sshbuf_len(buf));
 	if (sshbuf_len(buf) < 4) {
 		SSHBUF_DBG(("SSH_ERR_MESSAGE_INCOMPLETE"));
 		return SSH_ERR_MESSAGE_INCOMPLETE;
