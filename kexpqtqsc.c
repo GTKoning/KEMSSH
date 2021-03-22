@@ -50,7 +50,7 @@ pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
     // where do they store the pk_b? in the blob, where do they store the ct_b? in pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg (en length)
     if ((r = pq_tqs_deserialise_hostkey(ssh, server_host_key,
                                         server_host_key_blob, server_host_key_blob_len)) != 0 ||
-        (r = tqs_deserialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT)) != 0) {
+        (r = tqs_deserialise2(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT)) != 0) {
         error(" remote msg is %s", pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg);
         error("r is %i", r);
         goto out;
@@ -128,8 +128,9 @@ pq_tqs_deserialise_hostkey(struct ssh *ssh,
     if ((r = sshpkt_get_string(ssh, &tmp_server_host_key_blob,
                                &tmp_server_host_key_blob_len)) != 0 ||
         (r = sshkey_from_blob(tmp_server_host_key_blob,
-                              tmp_server_host_key_blob_len, &tmp_server_host_key)) != 0)
+                              tmp_server_host_key_blob_len, &tmp_server_host_key)) != 0) {
         goto out;
+    }
 
     /* Immediately verify host key */
     // Checks signature as well..
@@ -152,7 +153,6 @@ pq_tqs_deserialise_hostkey(struct ssh *ssh,
         free(tmp_server_host_key_blob);
     if (tmp_server_host_key != NULL)
         sshkey_free(tmp_server_host_key);
-
     return r;
 }
 
@@ -183,29 +183,33 @@ pq_tqs_client(struct ssh *ssh) {
         goto out;
     }
 
-
-
     /* Generate oqs public key */
-    if ((r = tqs_client_gen(oqs_kex_ctx)) != 0)
+    if ((r = tqs_client_gen(oqs_kex_ctx)) != 0) {
+
         goto out;
+    }
 
     /* Basically sends pk_a, it's in ctx as local msg and local private is sk_a. Do keep track of local msg as this can be overwritten */
     /* Send client PQ-only liboqs packet to server */
 
     if ((r = sshpkt_start(ssh, tqs_ssh2_init_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_c2s_serialise(ssh, pq_kex_ctx)) != 0 ||
-        (r = sshpkt_send(ssh)) != 0)
+        (r = sshpkt_send(ssh)) != 0) {
+        error(" do we get here !!!?");
         goto out;
+    }
 
     /* Set handler for recieving server reply */
     debug("expecting %i msg reply", tqs_ssh2_reply_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_reply_msg(oqs_alg),
                      &input_pq_tqs_reply);
     /* pk_a sent, waiting for pk_b, ct_b */
-
+    error(" pk_a should be sent, waiting for pk_b and ct_b");
     out:
-    if (r != 0)
+
+    if (r != 0) {
         pq_oqs_free(pq_kex_ctx);
+    }
 
     return r;
 }
@@ -253,8 +257,10 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     // pk_b is stored in server_host_key struct (or in blob), ct_b in remote_msg van ctx
     if ((r = pq_tqs_s2c_deserialise(ssh, pq_kex_ctx,
                                     &server_host_key, &server_host_key_blob,
-                                    &server_host_key_blob_len)) != 0)
+                                    &server_host_key_blob_len)) != 0) {
+        error(" Deserialization went wrong it seems ...");
         goto out;
+    }
 
 
     // Getting the shared secret by decapsulating -> not the way we want to do it actually.

@@ -1006,8 +1006,9 @@ to_blob_buf(const struct sshkey *key, struct sshbuf *b, int force_plain,
     CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* we simply serialize the type name, key handling is done after the switch statement */
-		if ((ret = sshbuf_put_cstring(b, typename)) != 0)
-			return ret;
+		if ((ret = sshbuf_put_cstring(b, typename)) != 0) {
+            return ret;
+        }
 		break;
 #endif /* WITH_PQ_AUTH */
 	default:
@@ -2583,6 +2584,7 @@ sshkey_from_blob_internal(struct sshbuf *b, struct sshkey **keyp,
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
+	CASE_KEY_TQS:
 		/* we simply create the key, handling is done after the switch statement */
 		if ((key = sshkey_new(type)) == NULL) {
 			ret = SSH_ERR_ALLOC_FAIL;
@@ -2602,7 +2604,6 @@ sshkey_from_blob_internal(struct sshbuf *b, struct sshkey **keyp,
 	switch (type) {
 	CASE_KEY_OQS:
 	CASE_KEY_HYBRID:
-	CASE_KEY_TQS:
 		if ((ret = sshbuf_get_string(b, &pk, &len)) != 0)
 			goto out;
 		if (len != key->oqs_sig->length_public_key) {
@@ -2611,6 +2612,16 @@ sshkey_from_blob_internal(struct sshbuf *b, struct sshkey **keyp,
 		}
 		key->oqs_pk = pk;
 		pk = NULL;
+		break;
+    CASE_KEY_TQS:
+        if ((ret = sshbuf_get_string(b, &pk, &len)) != 0)
+            goto out;
+        if (len != key->oqs_kem->length_public_key) {
+            ret = SSH_ERR_INVALID_FORMAT;
+            goto out;
+        }
+        key->oqs_pk = pk;
+        pk = NULL;
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 
@@ -2654,8 +2665,9 @@ sshkey_from_blob(const u_char *blob, size_t blen, struct sshkey **keyp)
 	struct sshbuf *b;
 	int r;
 
-	if ((b = sshbuf_from(blob, blen)) == NULL)
-		return SSH_ERR_ALLOC_FAIL;
+	if ((b = sshbuf_from(blob, blen)) == NULL) {
+        return SSH_ERR_ALLOC_FAIL;
+    }
 	r = sshkey_from_blob_internal(b, keyp, 1);
 	sshbuf_free(b);
 	return r;

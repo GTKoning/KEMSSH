@@ -51,7 +51,7 @@ int tqs_client_extract(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx);
 int tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
                              u_char **tqs_key_a, u_char **tqs_key_b, u_char **tqs_full_key, size_t *tqs_fullkey_size, size_t *tqs_halfkey_size, struct sshkey **server_host_key);
 /* Public server  fucntions */
-int tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
+int tqs_server_gen_msg_and_ss(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
                               u_char **tqs_key_b, size_t *tqs_key_size, u_char **oqs_shared_secret, size_t *oqs_shared_secret_len);
 int tqs_server_gen_key_hmac(OQS_KEX_CTX *oqs_kex_ctx, u_char **tqs_full_key, size_t *tqs_fullkey_size);
 /* Public shared functions */

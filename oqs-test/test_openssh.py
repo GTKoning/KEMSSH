@@ -3,7 +3,7 @@ import os
 import sys
 import time
 
-sig_algs = ['ssh-ed25519']
+sig_algs = []
 if 'WITH_PQAUTH' in os.environ and os.environ['WITH_PQAUTH'] == 'true':
     # post-quantum
     sig_algs += [

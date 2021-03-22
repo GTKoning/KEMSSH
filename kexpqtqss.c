@@ -52,6 +52,8 @@ pq_tqs_c2s_deserialise(struct ssh *ssh,
         goto out;
     }
     r = sshpkt_get_end(ssh);
+    error(" This is cta that we got from the package %s !!", pq_kex_ctx->oqs_kex_ctx->tqs_ct_a);
+    error(" This is remote msg that we got from the package %s !!", pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg);
 
 
     out:
@@ -80,13 +82,11 @@ pq_tqs_s2c_serialise(struct ssh *ssh,
                      size_t server_host_key_blob_len) {
 
     int r = 0;
-    error(" Ik ben hier gekomen 1" );
     if ((r = sshpkt_put_string(ssh, server_host_key_blob,
                                server_host_key_blob_len)) != 0 ||
         (r = tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0){
         goto out;
     }
-    error(" HERE IS THE PUBLIC KEY OF SERVER %s", ssh->kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_msg);
 
 
     out:
@@ -120,7 +120,6 @@ pq_tqs_server_hostkey(struct ssh *ssh, struct sshkey **server_host_public,
     int r = 0;
 
     kex = ssh->kex;
-
     /* Retrieve host public and private key */
     if (kex->load_host_public_key == NULL ||
         kex->load_host_private_key == NULL) {
@@ -146,6 +145,8 @@ pq_tqs_server_hostkey(struct ssh *ssh, struct sshkey **server_host_public,
     *server_host_key_blob_len = tmp_server_host_key_blob_len;
     kex->pq_kex_ctx->oqs_kex_ctx->blob = *server_host_key_blob;
     kex->pq_kex_ctx->oqs_kex_ctx->bloblen = *server_host_key_blob_len;
+    kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_msg = tmp_server_host_public->oqs_pk;
+    kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_priv = tmp_server_host_private->oqs_sk;
 
     tmp_server_host_public = NULL;
     tmp_server_host_private = NULL;
@@ -175,8 +176,8 @@ pq_tqs_server(struct ssh *ssh) {
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
-
-    debug("expecting %i msg init tqs serverside", tqs_ssh2_init_msg(oqs_alg));
+    error( "Set up confirmed, now waiting for PK_A");
+    debug("expecting %i msg init tqs on serverside", tqs_ssh2_init_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_init_msg(oqs_alg),
                      &input_pq_tqs_init);
 
@@ -209,7 +210,7 @@ input_pq_tqs_init(int type, u_int32_t seq,
         (kex = ssh->kex) == NULL ||
         (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
         (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
-
+        error (" SETUP SERVER WENT WRONG ");
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
@@ -223,24 +224,26 @@ input_pq_tqs_init(int type, u_int32_t seq,
     /* Packet comes in */
     /* Deserialise client to server packet */
     /* Gets public key of client (and length) stored in remote_msg */
-    if ((r = pq_tqs_c2s_deserialise(ssh, pq_kex_ctx)) != 0)
+    error ( " package received from client");
+    if ((r = pq_tqs_c2s_deserialise(ssh, pq_kex_ctx)) != 0) {
+        error(" Something went wrong in c2s deserialise");
         goto out;
+    }
+
     /*
      * libOQS API only supports generating the liboqs public key
      * msg and shared secret simultaneously.
      */
 
 
-
-    if ((r = tqs_server_gen_msg_and_ss(oqs_kex_ctx,
+    error(" we are now here, time to check if we did encaps decaps correctly");
+    if ((r = tqs_server_gen_msg_and_ss(ssh, oqs_kex_ctx,
                                        &tqs_key_b, &tqs_halfkey_size, &oqs_shared_secret, &oqs_shared_secret_len)) != 0) {
         goto out;
     }
 
-
-
     // K_b, ct_b made.
-
+    // Shouldn't this have happened sooner ? v
     if ((oqs_alg = oqs_mapping(pq_kex_ctx->pq_kex_name)) == NULL) {
         error("Unsupported libOQS algorithm \"%.100s\"", pq_kex_ctx->pq_kex_name);
         error("This is not supposed to happen oqs_alg mapping failed");
@@ -250,7 +253,7 @@ input_pq_tqs_init(int type, u_int32_t seq,
     // Need to send ct_b and pk_b -> use serialise 2 in s2c :)
     // Also, where is pk_b currently stored?
     // Now it makes sense! that's why the blobs are made.
-    pq_kex_ctx->oqs_kex_ctx->tqs_ct_a_len = sizeof(pq_kex_ctx->oqs_kex_ctx->tqs_ct_a);
+
     if ((r = sshpkt_start(ssh, oqs_ssh2_reply_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_s2c_serialise(ssh, pq_kex_ctx, server_host_key_blob,
                                   server_host_key_blob_len)) != 0 ||

@@ -331,9 +331,7 @@ out:
 int
 tqs_deserialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
-    // get cta if its there
-    int r = 0;
-    r = sshpkt_get_string(ssh, &(oqs_kex_ctx->tqs_ct_a), &(oqs_kex_ctx->tqs_ct_a_len));
+    // needs to get cta if its there - > refer to 2
     // So we got the pk (or do we?) -> sshpkt_get_string consumes the entire buffer...
     return sshpkt_get_string(ssh, &(oqs_kex_ctx->oqs_remote_msg),
 		&(oqs_kex_ctx->oqs_remote_msg_len));
@@ -365,8 +363,21 @@ tqs_deserialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_or
 int
 tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
-    sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len);
-
+    if(oqs_kex_ctx->tqs_ct_a == NULL){
+        error(" OOPS no CT_A found");
+    }
+    else {
+        error(" Went through (A)");
+        sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len);
+    }
+    if(oqs_kex_ctx->tqs_ct_b == NULL){
+        error(" OOPS no CT_B found");
+    }
+    else {
+        error(" Went through (B)");
+        sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_b, oqs_kex_ctx->tqs_ct_b_len);
+    }
+    error(" !! Printing oqs_local_msg_len %li", oqs_kex_ctx->oqs_local_msg_len);
 	return sshpkt_put_string(ssh, oqs_kex_ctx->oqs_local_msg,
 		oqs_kex_ctx->oqs_local_msg_len);
 }
@@ -402,8 +413,8 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 	if (oqs_kex_ctx->oqs_remote_msg_len != oqs_kex_ctx->oqs_kem->length_ciphertext) {
 		r = SSH_ERR_INVALID_FORMAT;
 		error("Size of remote msg: %li", oqs_kex_ctx->oqs_remote_msg_len);
+		error("Size of ct_len: %li", oqs_kex_ctx->tqs_ct_a_len);
         error("Size of ciphertext expected: %li", oqs_kex_ctx->oqs_kem->length_ciphertext);
-        error("Current problem checkpoint");
 		goto out;
 	}
 	//Make space for tmp server host key
@@ -478,7 +489,7 @@ out:
 
 /* Leest de public key out OQS_KEX_CTX en schrijft de ct (naar oqs_kex_ctx) */
 int
-tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
+tqs_server_gen_msg_and_ss(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	u_char **tqs_key_b, size_t *tqs_halfkey_size, u_char **oqs_shared_secret, size_t *oqs_shared_secret_len) {
 
 	OQS_KEM *oqs_kem = NULL;
@@ -511,20 +522,19 @@ tqs_server_gen_msg_and_ss(OQS_KEX_CTX *oqs_kex_ctx,
 				r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
-    error(" Here is a printed r of kextqs.c %i", r);
 
 	*tqs_key_b = (u_char *) tmp_tqs_key_b;
 	oqs_kex_ctx->tqs_key_b = tmp_tqs_key_b;
 	*tqs_halfkey_size = oqs_kem->length_shared_secret;
-	// ct set
+	// kb set
     *oqs_shared_secret = (u_char *) tmp_tqs_key_b;
     oqs_kex_ctx->oqs_kem = oqs_kem;
-    error(" Checkpoint 1:  %i", r);
     *oqs_shared_secret_len = oqs_kex_ctx->oqs_kem->length_shared_secret;
-    error(" Checkpoint 2:  %i \n Checkpoint 2.5: %i", r, oqs_kex_ctx->oqs_kem->length_shared_secret);
 	oqs_kex_ctx->tqs_ct_b = tmp_tqs_ct_b;
-    error(" Checkpoint 3:  %i \n Checkpoint 3.5: %s", r, tqs_key_b);
 	oqs_kex_ctx->tqs_ct_b_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
+	error( " Time to print tqs_ct_b: %s", tmp_tqs_ct_b);
+    error( " Time to print tqs_key_b: %s", *tqs_key_b);
+    error( " They seem to work, somewhat");
 
 
 
