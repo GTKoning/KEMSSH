@@ -82,6 +82,7 @@ pq_tqs_s2c_serialise(struct ssh *ssh,
                      size_t server_host_key_blob_len) {
 
     int r = 0;
+    error(" printing server_host_key_blob_len %li", server_host_key_blob_len);
     if ((r = sshpkt_put_string(ssh, server_host_key_blob,
                                server_host_key_blob_len)) != 0 ||
         (r = tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_SERVER)) != 0){
@@ -147,6 +148,8 @@ pq_tqs_server_hostkey(struct ssh *ssh, struct sshkey **server_host_public,
     kex->pq_kex_ctx->oqs_kex_ctx->bloblen = *server_host_key_blob_len;
     kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_msg = tmp_server_host_public->oqs_pk;
     kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_priv = tmp_server_host_private->oqs_sk;
+    kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_msg_len = tmp_server_host_public->oqs_kem->length_public_key;
+    kex->pq_kex_ctx->oqs_kex_ctx->oqs_local_priv_len = tmp_server_host_public->oqs_kem->length_secret_key;
 
     tmp_server_host_public = NULL;
     tmp_server_host_private = NULL;

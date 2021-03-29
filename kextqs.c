@@ -377,6 +377,7 @@ tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
         error(" Went through (B)");
         sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_b, oqs_kex_ctx->tqs_ct_b_len);
     }
+    error(" !! printing tqs_ct_b_len %li", oqs_kex_ctx->tqs_ct_b_len);
     error(" !! Printing oqs_local_msg_len %li", oqs_kex_ctx->oqs_local_msg_len);
 	return sshpkt_put_string(ssh, oqs_kex_ctx->oqs_local_msg,
 		oqs_kex_ctx->oqs_local_msg_len);
@@ -410,13 +411,14 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 
 	int r = 0;
     // checks ct_b length
-	if (oqs_kex_ctx->oqs_remote_msg_len != oqs_kex_ctx->oqs_kem->length_ciphertext) {
+	if (oqs_kex_ctx->oqs_remote_msg_len != oqs_kex_ctx->oqs_kem->length_public_key) {
 		r = SSH_ERR_INVALID_FORMAT;
-		error("Size of remote msg: %li", oqs_kex_ctx->oqs_remote_msg_len);
-		error("Size of ct_len: %li", oqs_kex_ctx->tqs_ct_a_len);
-        error("Size of ciphertext expected: %li", oqs_kex_ctx->oqs_kem->length_ciphertext);
+
 		goto out;
 	}
+    error("Size of remote msg: %li", oqs_kex_ctx->oqs_remote_msg_len);
+    error("Size of ct_len: %li", oqs_kex_ctx->tqs_ct_b_len);
+    error("Size of ciphertext expected: %li", oqs_kex_ctx->oqs_kem->length_ciphertext);
 	//Make space for tmp server host key
 	if((tmp_server_host_key = malloc(2*sizeof(server_host_key))) == NULL) {
         r = SSH_ERR_ALLOC_FAIL;
@@ -446,20 +448,24 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
         r = SSH_ERR_ALLOC_FAIL;
         goto out;
     }
+    error("shared secret checkpoint 1");
 
 	// Nu moet de encapsulate komen !
     if (OQS_KEM_encaps(oqs_kex_ctx->oqs_kem, tmp_tqs_ct_a, tmp_tqs_key_a,
                        tmp_server_host_key->oqs_pk) != OQS_SUCCESS) {
         r = SSH_ERR_INTERNAL_ERROR;
+        error(" !! encaps fails");
         goto out;
     }
-
+    error("shared secret checkpoint 2");
 	/* Generate shared secret from client private key and server public key */
 	if (OQS_KEM_decaps(oqs_kex_ctx->oqs_kem, tmp_tqs_key_b,
-		oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_local_priv) != OQS_SUCCESS) {
+		oqs_kex_ctx->tqs_ct_b, oqs_kex_ctx->oqs_local_priv) != OQS_SUCCESS) {
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
+
+    error("shared secret checkpoint 3");
 
     *tmp_tqs_full_key = *tmp_tqs_key_a + *tmp_tqs_key_b;
 	*tqs_key_a = (u_char *) tmp_tqs_key_a;

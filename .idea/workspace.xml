@@ -32,9 +32,6 @@
       <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kextqs.h" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oqs-test/test_openssh.py" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/test_openssh.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sshkey.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshkey.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +92,9 @@
       <workItem from="1615803179632" duration="7815000" />
       <workItem from="1616181069142" duration="23000" />
       <workItem from="1616408555489" duration="4932000" />
-      <workItem from="1616418788478" duration="110000" />
+      <workItem from="1616418788478" duration="454000" />
+      <workItem from="1616419258323" duration="2832000" />
+      <workItem from="1617016879004" duration="1701000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>

@@ -269,9 +269,10 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     // Probeer met enkel het blob
     if ((r = tqs_client_shared_secret(oqs_kex_ctx, &tqs_key_a, &tqs_key_b, &tqs_full_key, &tqs_fullkey_size,
                                       &tqs_halfkey_size, &server_host_key)) != 0) {
+        error(" function committed die");
         goto out;
     }
-
+    error(" komen we wel zo ver ?");
     /*
      * Compute exchange hash
      * kex->my is client
