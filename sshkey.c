@@ -376,8 +376,8 @@ sshkey_size(const struct sshkey *k)
 	case KEY_XMSS_CERT:
 		return 256;	/* XXX */
 	// TO DO
-	case KEY_KYBER512:
-	    return 0;
+	CASE_KEY_TQS:
+	    return (k->oqs_kem == NULL ? 0 : k->oqs_kem->length_public_key);
 
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
@@ -729,6 +729,7 @@ sshkey_free(struct sshkey *k)
 		break;
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
+	CASE_KEY_TQS:
 	CASE_KEY_OQS:
 		/* free done after this switch statement */
 		break;
@@ -744,6 +745,7 @@ sshkey_free(struct sshkey *k)
 	   processing is done there. */
 	switch (k->type) {
 	CASE_KEY_OQS:
+	CASE_KEY_TQS:
 	CASE_KEY_HYBRID:
 		if (k->oqs_sig) {
 			freezero(k->oqs_sk, k->oqs_sig->length_secret_key);
@@ -864,6 +866,7 @@ sshkey_equal_public(const struct sshkey *a, const struct sshkey *b)
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
+	CASE_KEY_TQS:
 		/* we simply break here to avoid the default clause. PQ processing
 		   is done after the switch statement */
 		rv = 1;
@@ -886,6 +889,9 @@ sshkey_equal_public(const struct sshkey *a, const struct sshkey *b)
 	CASE_KEY_HYBRID:
 		rv = a->oqs_pk != NULL && b->oqs_pk != NULL &&
 		    memcmp(a->oqs_pk, b->oqs_pk, a->oqs_sig->length_public_key) == 0;
+	CASE_KEY_TQS:
+		rv = a->oqs_pk != NULL && b->oqs_pk != NULL &&
+		    memcmp(a->oqs_pk, b->oqs_pk, a->oqs_kem->length_public_key) == 0;
 	}
 #endif /* WITH_PQ_AUTH || WITH_HYBRID_AUTH */
 
@@ -1474,6 +1480,7 @@ sshkey_read(struct sshkey *ret, char **cpp)
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
 	CASE_KEY_OQS:
+	CASE_KEY_TQS:
 #endif /* WITH_PQ_AUTH */
 #ifdef WITH_HYBRID_AUTH
 	CASE_KEY_HYBRID:
@@ -2852,6 +2859,9 @@ sshkey_sign(const struct sshkey *key,
 	CASE_KEY_HYBRID:
 		ret = ssh_oqs_sign(key, &sig_pq, &len_pq, data, datalen, compat);
 		break;
+	CASE_KEY_TQS:
+		error("dit kan niet vriend");
+		exit(1);
 	}
 	/* abort if we got an error in the PQ signing */
 	if (ret != 0) {
@@ -2942,6 +2952,9 @@ sshkey_verify(const struct sshkey *key,
 		sig_pq = sig;
 		siglen_pq = siglen;
 		break;
+	CASE_KEY_TQS:
+		error("kan niet checken met een kem vriend");
+		exit(1);
 #endif /* WITH_PQ_AUTH */
 	default:
 		/* classical signature */
@@ -3816,10 +3829,13 @@ sshkey_private_deserialize(struct sshbuf *buf, struct sshkey **kp)
             goto out;
         if (pklen != k->oqs_kem->length_public_key || sklen != k->oqs_kem->length_secret_key) {
             r = SSH_ERR_INVALID_FORMAT;
+			debug("hier gaat iets mis");
+			exit(1);
             goto out;
         }
         k->oqs_pk = oqs_pk;
         k->oqs_sk = oqs_sk;
+		debug("oqs_sk is hier: %p", oqs_sk);
         oqs_pk = oqs_sk = NULL;
         break;
 	}

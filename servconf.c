@@ -303,6 +303,7 @@ fill_default_server_options(ServerOptions *options)
 		    _PATH_HOST_SPHINCS_SHA256_128F_ROBUST_KEY_FILE);
 		servconf_add_hostkey("[default]", 0, options,
 		    _PATH_HOST_SPHINCS_SHAKE256_128F_ROBUST_KEY_FILE);
+		servconf_add_hostkey("[default]", 0, options, _PATH_HOST_KYBER512_KEY_FILE);
 ///// OQS_TEMPLATE_FRAGMENT_ADD_PQ_HOSTKEYS_END
 #endif /* WITH_PQ_AUTH */
 #ifdef WITH_HYBRID_AUTH

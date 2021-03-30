@@ -446,6 +446,7 @@ ssh_add_identity_constrained(int sock, const struct sshkey *key,
 	case KEY_XMSS:
 	case KEY_XMSS_CERT:
 	CASE_KEY_OQS:
+	CASE_KEY_TQS:
 	CASE_KEY_HYBRID:
 		type = constrained ?
 		    SSH2_AGENTC_ADD_ID_CONSTRAINED :

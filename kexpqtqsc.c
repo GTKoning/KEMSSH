@@ -239,7 +239,7 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     size_t tqs_halfkey_size = 0;
     u_char *tqs_full_key = NULL;
     size_t tqs_fullkey_size = 0;
-    u_char digest[16];
+    u_char digest[32];
 
     int r = 0;
     // Should be getting ct_b and pk_b
@@ -249,6 +249,12 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
         (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
 
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+
+    if ((oqs_alg = oqs_mapping(pq_kex_ctx->pq_kex_name)) == NULL) {
+        error("Unsupported libOQS algorithm \"%.100s\"", pq_kex_ctx->pq_kex_name);
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
@@ -299,16 +305,12 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         goto out;
     }
 
-
     if((ssh_hmac_init(hash_ctx, tqs_full_key, tqs_fullkey_size)) < 0 ||
             (ssh_hmac_update(hash_ctx, hash, hash_len)) < 0 ||
             (ssh_hmac_final(hash_ctx, digest, sizeof(digest))) < 0) {
         printf("ssh_hmac_xxx failed");
         goto out;
     }
-
-
-
 
     /* Verify signature over exchange hash */
     // Need to get rid of this (the signature part)
@@ -329,11 +331,27 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         }
         memcpy(kex->session_id, hash, kex->session_id_len);
     }
+    puts("voor maken van pakketje");
     // Still need to send over ct_a -> so that server can make the key.
-    if ((r = sshpkt_start(ssh, tqs_ssh2_sendct_msg(oqs_alg))) != 0 ||
-        (r = pq_tqs_c2s_serialise(ssh, pq_kex_ctx)) != 0 ||
-        (r = sshpkt_send(ssh)) != 0)
+    printf("oqs_alg = %p\n", oqs_alg);
+    int type_ = tqs_ssh2_sendct_msg(oqs_alg);
+    printf("type = %d\n", type_);
+    if ((r = sshpkt_start(ssh, type_)) != 0) {
+        puts("dit gaat mis!");
+        exit(1);
         goto out;
+    }
+    puts("voor serialize");
+    fflush(stdout);
+    fflush(stderr);
+    if ((r = sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len)) != 0) {
+        puts("maken van pakketje met serialize ging mis???");
+        exit(1);
+        goto out;
+    }
+    if ((r = sshpkt_send(ssh)) != 0) {
+        goto out;
+    }
 
     /*
      * sshbuf_put_string() will encode the shared secret as a mpint
@@ -347,8 +365,11 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
                                tqs_fullkey_size)) != 0)
         goto out;
 
-    if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0)
+
+    if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0) {
+        puts("sending newkeys");
         r = kex_send_newkeys(ssh);
+    }
 
     oqs_kex_ctx->digesta = digest;
     oqs_kex_ctx->digestlen = sizeof(digest);
@@ -360,6 +381,8 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     oqs_kex_ctx->tqs_fullkey_size = tqs_fullkey_size;
     oqs_kex_ctx->tqs_full_key = tqs_full_key;
     ssh->kex->pq_kex_ctx->oqs_kex_ctx = oqs_kex_ctx;
+
+    puts("we gaan nu naar verinit toe");
     // Initiate the MAC round trip
     pq_tqs_verinit(type, seq, ssh);
 
@@ -398,7 +421,7 @@ pq_tqs_verinit(int type, u_int32_t seq, struct ssh *ssh) {
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
-    if ((r = sshpkt_start(ssh, tqs_ssh2_init_msg(oqs_alg))) != 0 ||
+    if ((r = sshpkt_start(ssh, tqs_ssh2_verinit_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_c2s_serialisever(ssh, pq_kex_ctx)) != 0 ||
         (r = sshpkt_send(ssh)) != 0)
         goto out;
