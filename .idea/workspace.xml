@@ -30,8 +30,8 @@
     <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="Fix MAC">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oqs-scripts/tmp/liboqs/src/kem/kem.c" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-scripts/tmp/liboqs/src/kem/kem.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +94,7 @@
       <workItem from="1616408555489" duration="4932000" />
       <workItem from="1616418788478" duration="454000" />
       <workItem from="1616419258323" duration="2832000" />
-      <workItem from="1617016879004" duration="1701000" />
+      <workItem from="1617016879004" duration="5116000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>

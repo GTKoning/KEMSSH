@@ -419,11 +419,6 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
     error("Size of remote msg: %li", oqs_kex_ctx->oqs_remote_msg_len);
     error("Size of ct_len: %li", oqs_kex_ctx->tqs_ct_b_len);
     error("Size of ciphertext expected: %li", oqs_kex_ctx->oqs_kem->length_ciphertext);
-	//Make space for tmp server host key
-	if((tmp_server_host_key = malloc(2*sizeof(server_host_key))) == NULL) {
-        r = SSH_ERR_ALLOC_FAIL;
-        goto out;
-	}
 
 	// Make space for "key_a"
 	if ((tmp_tqs_key_a = malloc(*tqs_halfkey_size)) == NULL) {
@@ -450,6 +445,8 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
     }
     error("shared secret checkpoint 1");
 
+    error("%s", tmp_server_host_key->oqs_pk);
+    error("%li", *tqs_halfkey_size);
 	// Nu moet de encapsulate komen !
     if (OQS_KEM_encaps(oqs_kex_ctx->oqs_kem, tmp_tqs_ct_a, tmp_tqs_key_a,
                        tmp_server_host_key->oqs_pk) != OQS_SUCCESS) {
@@ -476,7 +473,6 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 
 
 	tmp_tqs_key_a = NULL;
-
 	// Now for the KDF -> what to do? Added them together -> cast to u char
 
 out:

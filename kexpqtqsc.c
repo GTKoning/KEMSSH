@@ -57,6 +57,7 @@ pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
     }
 
     r = sshpkt_get_end(ssh);
+    error(" LETS SEE: %p", (*server_host_key)->oqs_pk);
 
     out:
     return r;
@@ -273,6 +274,7 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         goto out;
     }
     error(" komen we wel zo ver ?");
+
     /*
      * Compute exchange hash
      * kex->my is client
@@ -297,12 +299,15 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         goto out;
     }
 
+
     if((ssh_hmac_init(hash_ctx, tqs_full_key, tqs_fullkey_size)) < 0 ||
             (ssh_hmac_update(hash_ctx, hash, hash_len)) < 0 ||
             (ssh_hmac_final(hash_ctx, digest, sizeof(digest))) < 0) {
         printf("ssh_hmac_xxx failed");
         goto out;
     }
+
+
 
 
     /* Verify signature over exchange hash */
