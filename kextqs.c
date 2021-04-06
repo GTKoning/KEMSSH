@@ -256,7 +256,7 @@ tqs_ssh2_init_msg(const OQS_ALG *oqs_alg) {
 
 int
 tqs_ssh2_verinit_msg(const OQS_ALG *oqs_alg) {
-    return oqs_alg->ssh2_verinit_msg;
+    return 43;
 }
 /*
  * @brief SSH hybrid key exchange reply message name
@@ -268,12 +268,12 @@ tqs_ssh2_reply_msg(const OQS_ALG *oqs_alg) {
 
 int
 tqs_ssh2_sendct_msg(const OQS_ALG *oqs_alg){
-    return oqs_alg->ssh2_sendct_msg;
+    return 42;
 }
 
 int
 tqs_ssh2_verreply_msg(const OQS_ALG *oqs_alg) {
-    return oqs_alg->ssh2_verreply_msg;
+    return 44;
 }
 
 /*
@@ -564,11 +564,10 @@ tqs_server_gen_key_hmac(OQS_KEX_CTX *oqs_kex_ctx, u_char **tqs_full_key, size_t 
     uint8_t *tmp_tqs_key_b = oqs_kex_ctx->tqs_key_b;
     uint8_t *tmp_tqs_full_key = NULL;
     size_t tqs_halfkey_size = oqs_kex_ctx->oqs_kem->length_shared_secret;
-    *tqs_fullkey_size = 2*sizeof(oqs_kex_ctx->oqs_kem->length_shared_secret);
+    *tqs_fullkey_size = 2*tqs_halfkey_size;
     oqs_kex_ctx->tqs_ct_a_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
 
     int r = 0;
-
     // Make space for "key_a"
     if ((tmp_tqs_key_a = malloc(tqs_halfkey_size)) == NULL) {
         r = SSH_ERR_ALLOC_FAIL;
@@ -582,11 +581,16 @@ tqs_server_gen_key_hmac(OQS_KEX_CTX *oqs_kex_ctx, u_char **tqs_full_key, size_t 
     }
 
     /* Generate shared secret from client private key and server public key */
+	debug("oqs_kem: %p", oqs_kex_ctx->oqs_kem);
+	debug("ct_a: %p", oqs_kex_ctx->tqs_ct_a);
+	debug("local_priv: %p", oqs_kex_ctx->oqs_local_priv);
     if (OQS_KEM_decaps(oqs_kex_ctx->oqs_kem, tmp_tqs_key_a,
                        oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->oqs_local_priv) != OQS_SUCCESS) {
+		debug("iedereen is dood einde");
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
+	debug("decaps lukte???");
 
     *tmp_tqs_full_key = *tmp_tqs_key_a + *tmp_tqs_key_b;
     oqs_kex_ctx->tqs_key_a = tmp_tqs_key_a;

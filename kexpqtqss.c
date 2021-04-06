@@ -134,6 +134,8 @@ pq_tqs_server_hostkey(struct ssh *ssh, struct sshkey **server_host_public,
         r = SSH_ERR_NO_HOSTKEY_LOADED;
         goto out;
     }
+    debug("in server_hostkey: oqs_sk = %p", tmp_server_host_public->oqs_sk);
+    debug("in server_hostkey: oqs_pk = %p", tmp_server_host_public->oqs_pk);
 
     /* Write to blob to prepare transfer over the wire */
     if ((r = sshkey_to_blob(tmp_server_host_public, &tmp_server_host_key_blob,
@@ -273,16 +275,19 @@ input_pq_tqs_init(int type, u_int32_t seq,
 
 
     oqs_kex_ctx->oqs_local_priv = server_host_private->oqs_sk;
+    debug("local_priv vanuit host private: %p", oqs_kex_ctx->oqs_local_priv);
 
     // We are receiving ct_a -> to make our key with
     // BUT HOW
     ssh->kex->pq_kex_ctx = pq_kex_ctx;
-    debug("expecting %i msg sendct", tqs_ssh2_sendct_msg(oqs_alg));
+    pq_kex_ctx = NULL;
+    debug("expecting %i msg sendct for finish", tqs_ssh2_sendct_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_sendct_msg(oqs_alg),
                      &input_pq_tqs_finish);
 
-    out:
-    pq_oqs_free(pq_kex_ctx);
+out:
+    if (pq_kex_ctx != NULL)
+        pq_oqs_free(pq_kex_ctx);
     /* sshbuf_free zeroises memory */
     if (shared_secret_ssh_buf != NULL)
         sshbuf_free(shared_secret_ssh_buf);
@@ -293,12 +298,13 @@ input_pq_tqs_init(int type, u_int32_t seq,
     if (server_host_key_blob != NULL)
         free(server_host_key_blob);
 
+    debug("done with this function");
     return r;
 }
 
 static int
-input_pq_tqs_finish(int type, u_int32_t seq,
-                  struct ssh *ssh) {
+input_pq_tqs_finish(int type, u_int32_t seq, struct ssh *ssh) {
+    debug("hello from input_pq_tqs_finish");
     const OQS_ALG *oqs_alg = NULL;
     u_char *tqs_full_key = NULL;
     size_t tqs_fullkey_size = 0;
@@ -315,18 +321,22 @@ input_pq_tqs_finish(int type, u_int32_t seq,
         (kex = ssh->kex) == NULL ||
         (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
         (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
-
+        debug("ssh: %p\nkex: %p\npq_kex_ctx: %p\noqs_kex_ctx: %p", ssh, kex, pq_kex_ctx, oqs_kex_ctx);
+        error("internal error is niet de bedoeling");
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
 
-
-    if ((r = pq_tqs_c2s_deserialise(ssh, pq_kex_ctx)) != 0)
+    debug("voor getstr");
+    if ((r = sshpkt_get_string(ssh, &oqs_kex_ctx->tqs_ct_a, &oqs_kex_ctx->tqs_ct_a_len)) != 0)
         goto out;
     // so we got ct_a now.
     // Time to create the shared key.
+    debug("gelukt: cta_len = %zu", oqs_kex_ctx->tqs_ct_a_len);
 
     tqs_server_gen_key_hmac(oqs_kex_ctx, &tqs_full_key, &tqs_fullkey_size);
+
+    debug("na gen hmac");
     // shared key created
     hash_len = sizeof(hash);
     if ((r = pq_oqs_hash(

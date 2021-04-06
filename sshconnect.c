@@ -1458,6 +1458,7 @@ show_other_keys(struct hostkeys *hostkeys, struct sshkey *key)
 		KEY_XMSS,
 ///// OQS_TEMPLATE_FRAGMENT_LIST_KT_START
 		KEY_OQSDEFAULT,
+		KEY_KYBER512,
 		KEY_DILITHIUM_2,
 		KEY_FALCON_512,
 		KEY_PICNIC_L1FS,

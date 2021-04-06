@@ -489,12 +489,14 @@ destroy_sensitive_data(void)
 void
 demote_sensitive_data(void)
 {
+	return;
 	struct sshkey *tmp;
 	u_int i;
 	int r;
 
 	for (i = 0; i < options.num_host_key_files; i++) {
 		if (sensitive_data.host_keys[i]) {
+			error("DEMOTING KEY: before: %p", sensitive_data.host_keys[i]->oqs_sk);
 			if ((r = sshkey_from_private(
 			    sensitive_data.host_keys[i], &tmp)) != 0)
 				fatal("could not demote host %s key: %s",
@@ -502,6 +504,7 @@ demote_sensitive_data(void)
 				    ssh_err(r));
 			sshkey_free(sensitive_data.host_keys[i]);
 			sensitive_data.host_keys[i] = tmp;
+			error("DEMOTING KEY: after: %p", sensitive_data.host_keys[i]->oqs_sk);
 		}
 		/* Certs do not need demotion */
 	}
@@ -774,8 +777,12 @@ get_hostkey_by_type(int type, int nid, int need_private, struct ssh *ssh)
 		case KEY_XMSS_CERT:
 			key = sensitive_data.host_certificates[i];
 			break;
+		case KEY_KYBER512:
+			debug("hier proberen we kyber te laden volgens idx %d (private: %d)", i, need_private);
 		default:
 			key = sensitive_data.host_keys[i];
+			debug("oqs_sk = %p", key->oqs_sk);
+			debug("oqs_pk = %p", key->oqs_pk);
 			if (key == NULL && !need_private)
 				key = sensitive_data.host_pubkeys[i];
 			break;
@@ -785,6 +792,7 @@ get_hostkey_by_type(int type, int nid, int need_private, struct ssh *ssh)
 			return need_private ?
 			    sensitive_data.host_keys[i] : key;
 	}
+	debug("hostkey_by_type geeft het op");
 	return NULL;
 }
 

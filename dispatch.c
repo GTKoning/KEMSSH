@@ -94,19 +94,22 @@ ssh_dispatch_run(struct ssh *ssh, int mode, volatile sig_atomic_t *done)
 	for (;;) {
 		if (mode == DISPATCH_BLOCK) {
 			r = ssh_packet_read_seqnr(ssh, &type, &seqnr);
+			debug("toch hier, r = %d", r);
 			if (r != 0)
 				return r;
 		} else {
 			r = ssh_packet_read_poll_seqnr(ssh, &type, &seqnr);
+			debug("hiero");
 			if (r != 0)
 				return r;
 			if (type == SSH_MSG_NONE)
 				return 0;
 		}
+		debug("type = %d", type);
 		if (type > 0 && type < DISPATCH_MAX &&
 		    ssh->dispatch[type] != NULL) {
 			if (ssh->dispatch_skip_packets) {
-				debug2("skipped packet (type %u)", type);
+				debug("skipped packet (type %u)", type);
 				ssh->dispatch_skip_packets--;
 				continue;
 			}

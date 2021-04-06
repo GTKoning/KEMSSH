@@ -2,6 +2,7 @@ import helpers
 import os
 import sys
 import time
+import subprocess
 
 sig_algs = []
 if 'WITH_PQAUTH' in os.environ and os.environ['WITH_PQAUTH'] == 'true':
@@ -43,14 +44,16 @@ def test_gen_keys():
             yield (gen_keys, sig_alg, party)
 
 def gen_keys(sig_alg, party):
-    helpers.run_subprocess(
+    subprocess.run(
         [
             'bin/ssh-keygen',
             '-t', sig_alg,
             '-N', '',
             '-f', os.path.join('ssh_{}'.format(party), 'id_{}'.format(sig_alg))
         ],
-        os.path.join('oqs-test', 'tmp')
+        cwd=os.path.join('oqs-test', 'tmp'),
+        check=True,
+        capture_output=True,
     )
 
 def test_connection():

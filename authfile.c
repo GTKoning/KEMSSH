@@ -260,6 +260,7 @@ sshkey_load_private(const char *filename, const char *passphrase,
 	    (r = sshkey_set_filename(*keyp, filename)) != 0)
 		goto out;
 	r = 0;
+
  out:
 	close(fd);
 	sshbuf_free(buffer);
