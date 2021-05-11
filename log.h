@@ -62,6 +62,7 @@ const char *	log_level_name(LogLevel);
 void     fatal(const char *, ...) __attribute__((noreturn))
     __attribute__((format(printf, 1, 2)));
 void     error(const char *, ...) __attribute__((format(printf, 1, 2)));
+void     dump_value(const char* , const char* , size_t);
 void     sigdie(const char *, ...)  __attribute__((noreturn))
     __attribute__((format(printf, 1, 2)));
 void     logdie(const char *, ...) __attribute__((noreturn))
@@ -77,5 +78,6 @@ void	 set_log_handler(log_handler_fn *, void *);
 void	 do_log2(LogLevel, const char *, ...)
     __attribute__((format(printf, 2, 3)));
 void	 do_log(LogLevel, const char *, va_list);
+void	 do_log_noeol(LogLevel, const char *, va_list);
 void	 cleanup_exit(int) __attribute__((noreturn));
 #endif

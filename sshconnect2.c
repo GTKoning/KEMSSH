@@ -437,7 +437,7 @@ input_userauth_service_accept(int type, u_int32_t seq, struct ssh *ssh)
 	}
 	if ((r = sshpkt_get_end(ssh)) != 0)
 		goto out;
-	debug("SSH2_MSG_SERVICE_ACCEPT received");
+        debug("SSH2_MSG_SERVICE_ACCEPT received");
 
 	/* initial userauth request */
 	userauth_none(authctxt);

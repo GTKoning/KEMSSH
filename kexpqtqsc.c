@@ -30,6 +30,8 @@ static int input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh);
 static int
 pq_tqs_c2s_serialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx);
 static int
+pq_tqs_c2s_serialise2(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx);
+static int
 pq_tqs_verify_hostkey(struct ssh *ssh,
                       struct sshkey *server_host_key);
 static int
@@ -75,7 +77,13 @@ pq_tqs_s2c_deserialisever(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx){
 static int
 pq_tqs_c2s_serialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx) {
     // should send ct_a, once it has been made
-    return tqs_serialise(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT);
+    return tqs_serialiseKey(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT);
+}
+
+static int
+pq_tqs_c2s_serialise2(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx) {
+    // should send ct_a, once it has been made
+    return tqs_serialise2(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT);
 }
 
 static int
@@ -229,17 +237,22 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     struct kex *kex = NULL;
     struct ssh_hmac_ctx *hash_ctx = NULL;
     u_char *server_host_key_blob = NULL;
-    u_char hash[SSH_DIGEST_MAX_LENGTH];
     u_char *oqs_shared_secret = NULL;
     size_t oqs_shared_secret_len = 0;
     size_t server_host_key_blob_len = 0;
-    size_t hash_len = 0;
+    size_t hash_len = 48;
     u_char *tqs_key_b = NULL;
     u_char *tqs_key_a = NULL;
     size_t tqs_halfkey_size = 0;
     u_char *tqs_full_key = NULL;
     size_t tqs_fullkey_size = 0;
-    u_char digest[32];
+
+    u_char *digest = malloc(32);
+    u_char *hash = malloc(SSH_DIGEST_MAX_LENGTH);
+    if(digest == NULL || hash == NULL) {
+        error(" paniekje, malloc wilde niet geven ");
+        exit(1);
+    }
 
     int r = 0;
     // Should be getting ct_b and pk_b
@@ -276,56 +289,56 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     // Probeer met enkel het blob
     if ((r = tqs_client_shared_secret(oqs_kex_ctx, &tqs_key_a, &tqs_key_b, &tqs_full_key, &tqs_fullkey_size,
                                       &tqs_halfkey_size, &server_host_key)) != 0) {
-        error(" function committed die");
         goto out;
     }
     error(" komen we wel zo ver ?");
-
+    dump_value("tqs_fullkey", tqs_full_key, tqs_halfkey_size);
     /*
      * Compute exchange hash
      * kex->my is client
      * kex->peer is server
      */
-    hash_len = sizeof(hash);
+    error( "");
+    error(" ------ CHECKING CLIENT SIDE HASH VALUES ------- ");
+    error(" hash_alg: %d", kex->hash_alg);
+    error(" client_version_string: %s", kex->client_version_string);
+    error(" server_version_string: %s", kex->server_version_string);
+    dump_value("remote msg", oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len);
+    error(" local msg: %s | %zu", oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len);
+    dump_value("hash", hash, 48);
+    error("hash_len: %zu @ %p", hash_len, &hash_len);
+    error(" ------ CHECKING CLIENT SIDE HASH VALUES END ------- ");
+    error( "");
     if ((r = pq_tqs_hash(
             kex->hash_alg,
             kex->client_version_string,
             kex->server_version_string,
-            kex->my,
-            kex->peer,
-            server_host_key_blob, server_host_key_blob_len,
             oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len,
             oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len,
             tqs_full_key, tqs_fullkey_size,
             hash, &hash_len)) != 0)
         goto out;
 
+    error("na pq_tqs_hash");
+
     if((hash_ctx = ssh_hmac_start(SSH_DIGEST_SHA256)) == NULL) {
         printf("ssh_hmac_start failed");
         goto out;
     }
 
-
     if((ssh_hmac_init(hash_ctx, tqs_full_key, tqs_fullkey_size)) < 0 ||
-            (ssh_hmac_update(hash_ctx, hash, hash_len)) < 0 ||
-            (ssh_hmac_final(hash_ctx, digest, sizeof(digest))) < 0) {
+       (ssh_hmac_update(hash_ctx, hash, hash_len)) < 0 ||
+       (ssh_hmac_final(hash_ctx, digest, 32)) < 0) {
         printf("ssh_hmac_xxx failed");
         goto out;
     }
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 544fcd27eeeab6be52b31f231c8981e93a23b91b
     /* Verify signature over exchange hash */
     // Need to get rid of this (the signature part)
     // Commenting it for now
     /*
     if ((r = sshkey_verify(server_host_key, signature, signature_len, hash,
                            hash_len, kex->hostkey_alg, ssh->compat))!= 0)
-
         goto out;
     */
     /* Save session id */
@@ -338,25 +351,31 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
         }
         memcpy(kex->session_id, hash, kex->session_id_len);
     }
-    puts("voor maken van pakketje");
     // Still need to send over ct_a -> so that server can make the key.
-    printf("oqs_alg = %p\n", oqs_alg);
     int type_ = tqs_ssh2_sendct_msg(oqs_alg);
-    printf("type = %d\n", type_);
     if ((r = sshpkt_start(ssh, type_)) != 0) {
         puts("dit gaat mis!");
         exit(1);
         goto out;
     }
-    puts("voor serialize");
-    fflush(stdout);
-    fflush(stderr);
-    if ((r = sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len)) != 0) {
-        puts("maken van pakketje met serialize ging mis???");
-        exit(1);
+    error("voor serialize");
+
+    // Moeten nog Ct_A sturen !
+
+    if ((r = pq_tqs_c2s_serialise2(ssh, pq_kex_ctx)) != 0) {
+        puts(" Gaat dit fout? serialise2?");
         goto out;
     }
+
+//    if ((r = sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len)) != 0) {
+//        puts("maken van pakketje met serialize ging mis???");
+//        //exit(1);
+//        goto out;
+//    }
+    //exit(1);
     if ((r = sshpkt_send(ssh)) != 0) {
+        puts(" Is t deze dan????");
+        //exit(1);
         goto out;
     }
 
@@ -364,92 +383,114 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
      * sshbuf_put_string() will encode the shared secret as a mpint
      * as required by SSH spec (RFC4253)
      */
-    if ((shared_secret_ssh_buf = sshbuf_new()) == NULL) {
-        r = SSH_ERR_ALLOC_FAIL;
-        goto out;
-    }
-    if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) tqs_full_key,
-                               tqs_fullkey_size)) != 0)
-        goto out;
+
+//    if ((shared_secret_ssh_buf = sshbuf_new()) == NULL) {
+//        r = SSH_ERR_ALLOC_FAIL;
+//        goto out;
+//    }
 
 
-    if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0) {
-        puts("sending newkeys");
-        r = kex_send_newkeys(ssh);
-    }
+//    if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) tqs_full_key,
+//                               tqs_fullkey_size)) != 0)
+//        goto out;
+
+//    if ((r = kex_derive_keys(ssh, hash, hash_len, shared_secret_ssh_buf)) == 0) {
+//        puts("sending newkeys");
+//        r = kex_send_newkeys(ssh);
+//    }
+
 
     oqs_kex_ctx->digesta = digest;
-    oqs_kex_ctx->digestlen = sizeof(digest);
+    oqs_kex_ctx->digestlen = 32;
+    dump_value(" [DISGESTA die wordt gebruikt in tqs_reply] ", digest, oqs_kex_ctx->digestlen);
     oqs_kex_ctx->tqs_halfkey_size = tqs_halfkey_size;
     oqs_kex_ctx->tqs_key_a = tqs_key_a;
     oqs_kex_ctx->tqs_key_b = tqs_key_b;
     oqs_kex_ctx->hash_len = hash_len;
     oqs_kex_ctx->hash = hash;
+    dump_value(" [PRINTING HASH CLIENT]", pq_kex_ctx->oqs_kex_ctx->hash, pq_kex_ctx->oqs_kex_ctx->hash_len);
     oqs_kex_ctx->tqs_fullkey_size = tqs_fullkey_size;
     oqs_kex_ctx->tqs_full_key = tqs_full_key;
     ssh->kex->pq_kex_ctx->oqs_kex_ctx = oqs_kex_ctx;
+    pq_kex_ctx = NULL;
 
-    puts("we gaan nu naar verinit toe");
+    error("we gaan nu naar verinit toe");
     // Initiate the MAC round trip
+
     pq_tqs_verinit(type, seq, ssh);
-
     out:
-    ssh_hmac_free(hash_ctx);
-    explicit_bzero(hash, sizeof(hash));
-    pq_oqs_free(pq_kex_ctx);
-    /* sshbuf_free zeroises memory */
-    if (shared_secret_ssh_buf != NULL)
-        sshbuf_free(shared_secret_ssh_buf);
-    if (server_host_key != NULL)
-        sshkey_free(server_host_key);
-    if (oqs_shared_secret != NULL) {
-        explicit_bzero(oqs_shared_secret, oqs_shared_secret_len);
-        free(oqs_shared_secret);
-    }
-    if (server_host_key_blob != NULL)
-        free(server_host_key_blob);
-
     return r;
 }
 
 static int
 pq_tqs_verinit(int type, u_int32_t seq, struct ssh *ssh) {
     /* need to send MAC */
+    // stored in digest ?
     const OQS_ALG *oqs_alg = NULL;
     PQ_KEX_CTX *pq_kex_ctx = NULL;
     OQS_KEX_CTX *oqs_kex_ctx = NULL;
     struct kex *kex = NULL;
     int r = 0;
+    error(" gearriveerd in verinit");
     if (ssh == NULL ||
         (kex = ssh->kex) == NULL ||
         (pq_kex_ctx = kex->pq_kex_ctx) == NULL ||
         (oqs_kex_ctx = pq_kex_ctx->oqs_kex_ctx) == NULL) {
-
+        error(" haaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
+
+    if ((oqs_alg = oqs_mapping(pq_kex_ctx->pq_kex_name)) == NULL) {
+        error("Unsupported libOQS algorithm \"%.100s\"", pq_kex_ctx->pq_kex_name);
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+    // send digesta
     if ((r = sshpkt_start(ssh, tqs_ssh2_verinit_msg(oqs_alg))) != 0 ||
         (r = pq_tqs_c2s_serialisever(ssh, pq_kex_ctx)) != 0 ||
-        (r = sshpkt_send(ssh)) != 0)
+        (r = sshpkt_send(ssh)) != 0) {
+        error(" Did this work? Just making sure it did");
         goto out;
+    }
+    dump_value(" [DISGESTA die wordt gebruikt] ", ssh->kex->pq_kex_ctx->oqs_kex_ctx->digesta, ssh->kex->pq_kex_ctx->oqs_kex_ctx->digestlen);
+    dump_value(" [PRINTING HASH CLIENT]", pq_kex_ctx->oqs_kex_ctx->hash, pq_kex_ctx->oqs_kex_ctx->hash_len);
+    error(" digesta should be sent NU NOG GOED");
+    error(" waiting for digestb");
+
 
     debug("expecting %i msg verreply", tqs_ssh2_verreply_msg(oqs_alg));
     ssh_dispatch_set(ssh, tqs_ssh2_verreply_msg(oqs_alg),
                      &input_pq_tqs_verreply);
     out:
-    pq_oqs_free(pq_kex_ctx);
     return r;
 }
 
 static int
 input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh) {
+    const OQS_ALG *oqs_alg = NULL;
     PQ_KEX_CTX *pq_kex_ctx = NULL;
     OQS_KEX_CTX *oqs_kex_ctx = NULL;
     struct kex *kex = NULL;
     struct ssh_hmac_ctx *hash_ctx = NULL;
-    u_char check_digest[16];
+    struct sshbuf *shared_secret_ssh_buf = NULL;
+    u_char check_digest[32];
     u_char *macmessage;
     int r = 0;
+
+    error("we zijn nu bij verreply, pakketje van iets is binnen gekomen");
+    if(ssh == NULL) {
+        error(" big fuggin problem");
+    }
+    if(ssh->kex == NULL) {
+        error(" big fuggin problem2");
+    }
+    if(ssh->kex->pq_kex_ctx == NULL) {
+        error(" big fuggin problem3");
+    }
+    if(ssh->kex->pq_kex_ctx->oqs_kex_ctx == NULL) {
+        error(" big fuggin problem4");
+    }
 
     if (ssh == NULL ||
         (kex = ssh->kex) == NULL ||
@@ -460,30 +501,81 @@ input_pq_tqs_verreply(int type, u_int32_t seq, struct ssh *ssh) {
         goto out;
     }
 
+    if ((oqs_alg = oqs_mapping(pq_kex_ctx->pq_kex_name)) == NULL) {
+        error("Unsupported libOQS algorithm \"%.100s\"", pq_kex_ctx->pq_kex_name);
+        r = SSH_ERR_INTERNAL_ERROR;
+        goto out;
+    }
+
+    dump_value(" [DISGESTA die wordt gebruikt in verreply] ", oqs_kex_ctx->digesta, oqs_kex_ctx->digestlen);
+    dump_value(" [PRINTING HASH CLIENT in verreply]", pq_kex_ctx->oqs_kex_ctx->hash, pq_kex_ctx->oqs_kex_ctx->hash_len);
+
+    error(" voor het openen van pakketje3");
     if ((r = pq_tqs_s2c_deserialisever(ssh, pq_kex_ctx)) != 0) {
         goto out;
     }
+    error(" heb ik digestb binnen gekregen? ");
+    dump_value("digestb", pq_kex_ctx->oqs_kex_ctx->digestb, pq_kex_ctx->oqs_kex_ctx->digestlen);
 
     if((hash_ctx = ssh_hmac_start(SSH_DIGEST_SHA256)) == NULL) {
         printf("ssh_hmac_start failed");
         goto out;
     }
-    uint8_t *tmp_macmessage = NULL;
-    uint8_t *tmp_digesta = oqs_kex_ctx->digesta;
-    uint8_t *tmp_hash = oqs_kex_ctx->hash;
-    *tmp_macmessage = *tmp_digesta + *tmp_hash;
+
+    u_char *tmp_macmessage = malloc(oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len);
+    if (tmp_macmessage == NULL) {
+        error("malloc failed");
+        exit(1);
+    }
+    u_char *tmp_digesta = oqs_kex_ctx->digesta;
+    u_char *tmp_hash = oqs_kex_ctx->hash;
+    error(" Wats de size g: %zu ", oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len);
+
+    memcpy(tmp_macmessage, tmp_hash, oqs_kex_ctx->hash_len);
+    memcpy(tmp_macmessage + oqs_kex_ctx->hash_len, tmp_digesta, oqs_kex_ctx->digestlen);
+    error(" Wats de size g: %zu ", oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len);
     macmessage = (u_char *) tmp_macmessage;
 
-    if((ssh_hmac_init(hash_ctx, oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size)) < 0 ||
-       (ssh_hmac_update(hash_ctx, macmessage, sizeof(macmessage))) < 0 ||
-       (ssh_hmac_final(hash_ctx, check_digest, sizeof(check_digest))) < 0) {
-        printf("ssh_hmac_xxx failed");
+    dump_value(" [Full key die wordt gebruikt] ", oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size);
+    dump_value(" [DIGESTA die wordt gebruikt] ", oqs_kex_ctx->digesta, oqs_kex_ctx->digestlen);
+    dump_value(" [DIGESTB die wordt gebruikt] ", oqs_kex_ctx->digestb, oqs_kex_ctx->digestlen);
+    dump_value(" [MACMESSAGE die wordt gebruikt] ", macmessage, (oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len));
+
+    if((r = ssh_hmac_init(hash_ctx, oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size)) < 0 ||
+       (r = ssh_hmac_update(hash_ctx, macmessage, (oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len))) < 0 ||
+       (r = ssh_hmac_final(hash_ctx, check_digest, 32) < 0)) {
+        error("ssh_hmac_xxx failed");
+        exit(1);
         goto out;
     }
+
     if(memcmp(check_digest, oqs_kex_ctx->digestb, oqs_kex_ctx->digestlen) != 0) {
+        dump_value("check_digest", check_digest, sizeof(check_digest));
+        dump_value("digestb", oqs_kex_ctx->digestb, oqs_kex_ctx->digestlen);
+        error(" panikje alles gaat fout aaaaaaaaaaaaaaaaaaaaaaaaaa");
         r = SSH_ERR_INTERNAL_ERROR;
         goto out;
     }
+    error(" helemaal klaar g");
+    error(" alles voor nieuw keys");
+    // NEWKEYS?
+
+    if ((shared_secret_ssh_buf = sshbuf_new()) == NULL) {
+        r = SSH_ERR_ALLOC_FAIL;
+        goto out;
+    }
+    dump_value("hash", oqs_kex_ctx->hash, oqs_kex_ctx->hash_len);
+    dump_value("session_id", kex->session_id, kex->session_id_len);
+
+    if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) oqs_kex_ctx->tqs_full_key,
+                               oqs_kex_ctx->tqs_fullkey_size)) != 0)
+        goto out;
+
+    if ((r = kex_derive_keys(ssh, oqs_kex_ctx->hash, oqs_kex_ctx->hash_len, shared_secret_ssh_buf)) == 0)
+        r = kex_send_newkeys(ssh);
+
+    error(" Client helemaal klaar denk ik");
+
     out:
     pq_oqs_free(pq_kex_ctx);
     return r;

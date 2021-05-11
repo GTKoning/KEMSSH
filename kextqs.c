@@ -353,13 +353,23 @@ tqs_deserialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_or
     if(client_or_server == TQS_IS_CLIENT){
         return sshpkt_get_string(ssh, &(oqs_kex_ctx->digestb), &(oqs_kex_ctx->digestlen));
     }
-    return sshpkt_get_string(ssh, &(oqs_kex_ctx->digesta), &(oqs_kex_ctx->digestlen));
+    else {
+        return sshpkt_get_string(ssh, &(oqs_kex_ctx->digesta), &(oqs_kex_ctx->digestlen));
+    }
 }
 
 
 /*
  * @brief Serialise liboqs specific parts of outgoing packet
  */
+
+int
+tqs_serialiseKey(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
+              enum tqs_client_or_server client_or_server) {
+    return sshpkt_put_string(ssh, oqs_kex_ctx->oqs_local_msg,
+                             oqs_kex_ctx->oqs_local_msg_len);
+}
+
 int
 tqs_serialise(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	enum tqs_client_or_server client_or_server) {
@@ -390,8 +400,7 @@ int tqs_serialisever(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx, enum tqs_client_
 int
 tqs_serialise2(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
               enum tqs_client_or_server client_or_server) {
-    return sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_b,
-                          oqs_kex_ctx->tqs_ct_b_len);
+    return sshpkt_put_string(ssh, oqs_kex_ctx->tqs_ct_a, oqs_kex_ctx->tqs_ct_a_len);
 }
 
 /*
@@ -406,7 +415,7 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
     uint8_t *tmp_tqs_full_key = NULL;
     struct sshkey *tmp_server_host_key = *server_host_key;
     *tqs_halfkey_size = oqs_kex_ctx->oqs_kem->length_shared_secret;
-    *tqs_fullkey_size = 2*sizeof(oqs_kex_ctx->oqs_kem->length_shared_secret);
+    *tqs_fullkey_size = 2 * (*tqs_halfkey_size)+1;
 
 
 	int r = 0;
@@ -454,6 +463,8 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
         error(" !! encaps fails");
         goto out;
     }
+
+    error("key_a: %s", tmp_tqs_key_a);
     error("shared secret checkpoint 2");
 	/* Generate shared secret from client private key and server public key */
 	if (OQS_KEM_decaps(oqs_kex_ctx->oqs_kem, tmp_tqs_key_b,
@@ -461,10 +472,17 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
+    error( " [TESTING] Time to print tqs_key_b: %s", tmp_tqs_key_b);
 
     error("shared secret checkpoint 3");
 
-    *tmp_tqs_full_key = *tmp_tqs_key_a + *tmp_tqs_key_b;
+    error("key_a: %s", tmp_tqs_key_a);
+    error("key_b: %s", tmp_tqs_key_b);
+
+    memcpy(tmp_tqs_full_key, tmp_tqs_key_a, *tqs_halfkey_size);
+    *(tmp_tqs_full_key + *tqs_halfkey_size) = ' ';
+    memcpy(tmp_tqs_full_key + *tqs_halfkey_size + 1, tmp_tqs_key_b, *tqs_halfkey_size);
+
 	*tqs_key_a = (u_char *) tmp_tqs_key_a;
     *tqs_key_b = (u_char *) tmp_tqs_key_b;
     *tqs_full_key = (u_char *) tmp_tqs_full_key;
@@ -529,13 +547,11 @@ tqs_server_gen_msg_and_ss(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
 	oqs_kex_ctx->tqs_key_b = tmp_tqs_key_b;
 	*tqs_halfkey_size = oqs_kem->length_shared_secret;
 	// kb set
-    *oqs_shared_secret = (u_char *) tmp_tqs_key_b;
     oqs_kex_ctx->oqs_kem = oqs_kem;
-    *oqs_shared_secret_len = oqs_kex_ctx->oqs_kem->length_shared_secret;
 	oqs_kex_ctx->tqs_ct_b = tmp_tqs_ct_b;
 	oqs_kex_ctx->tqs_ct_b_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
 	error( " Time to print tqs_ct_b: %s", tmp_tqs_ct_b);
-    error( " Time to print tqs_key_b: %s", *tqs_key_b);
+    error( " [TESTING] Time to print tqs_key_b: %s", *tqs_key_b);
     error( " They seem to work, somewhat");
 
 
@@ -564,7 +580,7 @@ tqs_server_gen_key_hmac(OQS_KEX_CTX *oqs_kex_ctx, u_char **tqs_full_key, size_t 
     uint8_t *tmp_tqs_key_b = oqs_kex_ctx->tqs_key_b;
     uint8_t *tmp_tqs_full_key = NULL;
     size_t tqs_halfkey_size = oqs_kex_ctx->oqs_kem->length_shared_secret;
-    *tqs_fullkey_size = 2*tqs_halfkey_size;
+    *tqs_fullkey_size = 2*tqs_halfkey_size + 1;
     oqs_kex_ctx->tqs_ct_a_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
 
     int r = 0;
@@ -591,8 +607,13 @@ tqs_server_gen_key_hmac(OQS_KEX_CTX *oqs_kex_ctx, u_char **tqs_full_key, size_t 
         goto out;
     }
 	debug("decaps lukte???");
+    error("key_a: %s", tmp_tqs_key_a);
+    error("key_b: %s", tmp_tqs_key_b);
 
-    *tmp_tqs_full_key = *tmp_tqs_key_a + *tmp_tqs_key_b;
+    memcpy(tmp_tqs_full_key, tmp_tqs_key_a, tqs_halfkey_size);
+    *(tmp_tqs_full_key + tqs_halfkey_size) = ' ';
+    memcpy(tmp_tqs_full_key + tqs_halfkey_size + 1, tmp_tqs_key_b, tqs_halfkey_size);
+
     oqs_kex_ctx->tqs_key_a = tmp_tqs_key_a;
     *tqs_full_key = (u_char *) tmp_tqs_full_key;
 

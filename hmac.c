@@ -107,9 +107,13 @@ ssh_hmac_final(struct ssh_hmac_ctx *ctx, u_char *d, size_t dlen)
 	size_t len;
 
 	len = ssh_digest_bytes(ctx->alg);
+    error(" Printing len: %lu", len);
+    error(" Printing dlen: %lu", dlen);
 	if (dlen < len ||
-	    ssh_digest_final(ctx->digest, ctx->buf, len))
+	    ssh_digest_final(ctx->digest, ctx->buf, len)) {
+	    error("hiero");
 		return -1;
+	}
 	/* switch to octx */
 	if (ssh_digest_copy_state(ctx->octx, ctx->digest) < 0 ||
 	    ssh_digest_update(ctx->digest, ctx->buf, len) < 0 ||

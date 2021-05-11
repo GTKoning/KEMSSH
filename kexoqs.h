@@ -71,6 +71,7 @@ typedef struct oqs_kex_ctx {
     size_t digestlen;
     u_char *digesta;
     u_char *digestb;
+    u_char *check_digest;
     u_char *blob;
     size_t bloblen;
 

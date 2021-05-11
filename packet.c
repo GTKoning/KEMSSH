@@ -1476,15 +1476,21 @@ ssh_packet_read_poll2(struct ssh *ssh, u_char *typep, u_int32_t *seqnr_p)
 	aadlen = (mac && mac->enabled && mac->etm) || authlen ? 4 : 0;
 
 	if (aadlen && state->packlen == 0) {
+        logit("packet length 1 %u.", state->packlen);
+
 		if (cipher_get_length(state->receive_context,
 		    &state->packlen, state->p_read.seqnr,
-		    sshbuf_ptr(state->input), sshbuf_len(state->input)) != 0)
-			return 0;
+		    sshbuf_ptr(state->input), sshbuf_len(state->input)) != 0) {
+            return 0;
+        }
+        logit("packet length 2 %u.", state->packlen);
 		if (state->packlen < 1 + 4 ||
 		    state->packlen > PACKET_MAX_SIZE) {
 #ifdef PACKET_DEBUG
 			sshbuf_dump(state->input, stderr);
 #endif
+            logit(" deze 1");
+            logit("max packet length %u", PACKET_MAX_SIZE);
 			logit("Bad packet length %u.", state->packlen);
 			if ((r = sshpkt_disconnect(ssh, "Packet corrupt")) != 0)
 				return r;
@@ -1515,6 +1521,7 @@ ssh_packet_read_poll2(struct ssh *ssh, u_char *typep, u_int32_t *seqnr_p)
 			fprintf(stderr, "incoming_packet: \n");
 			sshbuf_dump(state->incoming_packet, stderr);
 #endif
+			logit(" deze 2");
 			logit("Bad packet length %u.", state->packlen);
 			return ssh_packet_start_discard(ssh, enc, mac, 0,
 			    PACKET_MAX_SIZE);

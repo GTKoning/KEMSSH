@@ -29,9 +29,39 @@
   <component name="ChangeListManager">
     <list default="true" id="23760a06-a58d-4e54-8c5e-0e45df51642b" name="Default Changelist" comment="Fix MAC">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth.c" beforeDir="false" afterPath="$PROJECT_DIR$/auth.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth2.c" beforeDir="false" afterPath="$PROJECT_DIR$/auth2.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cipher.c" beforeDir="false" afterPath="$PROJECT_DIR$/cipher.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hmac.c" beforeDir="false" afterPath="$PROJECT_DIR$/hmac.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexoqs.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexoqs.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpq.h" beforeDir="false" afterPath="$PROJECT_DIR$/kexpq.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqs.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kextqs.h" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/oqs-scripts/tmp/liboqs/src/kem/kem.c" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-scripts/tmp/liboqs/src/kem/kem.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oqs-test/test_openssh.py" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/test_openssh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packet.c" beforeDir="false" afterPath="$PROJECT_DIR$/packet.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sshconnect2.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshconnect2.c" afterDir="false" />
+    </list>
+    <list id="899889ba-42ba-4d77-a60c-e15e4474a7a2" name="Changes by thom" comment="">
+      <change beforePath="$PROJECT_DIR$/hmac.c" beforeDir="false" afterPath="$PROJECT_DIR$/hmac.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
+    </list>
+    <list id="ae81b443-76e2-47db-b664-7c1d6fe96e68" name="Changes by Thom Wiggers" comment="">
+      <change beforePath="$PROJECT_DIR$/auth2.c" beforeDir="false" afterPath="$PROJECT_DIR$/auth2.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqsc.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqsc.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kexpqtqss.c" beforeDir="false" afterPath="$PROJECT_DIR$/kexpqtqss.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kextqs.c" beforeDir="false" afterPath="$PROJECT_DIR$/kextqs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log.c" beforeDir="false" afterPath="$PROJECT_DIR$/log.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log.h" beforeDir="false" afterPath="$PROJECT_DIR$/log.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oqs-test/do_openssh.sh" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/do_openssh.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oqs-test/test_openssh.py" beforeDir="false" afterPath="$PROJECT_DIR$/oqs-test/test_openssh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ssh.c" beforeDir="false" afterPath="$PROJECT_DIR$/ssh.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sshd.c" beforeDir="false" afterPath="$PROJECT_DIR$/sshd.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +74,170 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/kex.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/kexoqs.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/kex.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/ssh.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/digest.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/monitor.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/auth.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/log.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/kexpqtqsc.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/kexpqtqs.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/kextqs.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sshconnect.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/auth2.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/kexpqtqss.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/oqs-test/do_openssh.sh" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/monitor_wrap.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/oqs-test/test_openssh.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/auth.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/kexpqoqss.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/monitor_wrap.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sshd.c" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sshconnect2.c" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/kexpqtqs.c">
+      <ranges>
+        <range start1="13" end1="13" start2="13" end2="14" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="83" end1="86" start2="84" end2="84" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="93" end1="93" start2="91" end2="99" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="95" end1="96" start2="101" end2="101" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="97" end1="97" start2="102" end2="104" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="100" end1="100" start2="107" end2="108" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="104" end1="104" start2="112" end2="113" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="106" end1="107" start2="115" end2="116" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="108" end1="115" start2="117" end2="117" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="116" end1="116" start2="118" end2="119" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="122" end1="123" start2="125" end2="126" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="127" end1="127" start2="130" end2="131" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="129" end1="129" start2="133" end2="134" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/oqs-test/test_openssh.py">
+      <ranges>
+        <range start1="61" end1="61" start2="61" end2="62" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="77" end1="79" start2="78" end2="80" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="80" end1="80" start2="81" end2="82" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/kextqs.c">
+      <ranges>
+        <range start1="355" end1="356" start2="355" end2="358" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="362" end1="362" start2="364" end2="372" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="392" end1="394" start2="402" end2="403" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="408" end1="409" start2="417" end2="418" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="456" end1="456" start2="465" end2="467" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="463" end1="463" start2="474" end2="475" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="466" end1="467" start2="478" end2="485" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="531" end1="532" start2="549" end2="549" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="533" end1="534" start2="550" end2="550" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="537" end1="538" start2="553" end2="554" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="566" end1="567" start2="582" end2="583" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="593" end1="593" start2="609" end2="611" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="594" end1="595" start2="612" end2="616" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/kexpqtqss.c">
+      <ranges>
+        <range start1="44" end1="44" start2="44" end2="47" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="300" end1="301" start2="303" end2="304" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="310" end1="312" start2="313" end2="315" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="316" end1="316" start2="319" end2="325" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="337" end1="337" start2="346" end2="347" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="340" end1="342" start2="350" end2="362" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="345" end1="348" start2="365" end2="365" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="357" end1="362" start2="374" end2="375" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="363" end1="369" start2="376" end2="387" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="375" end1="377" start2="393" end2="395" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="388" end1="389" start2="406" end2="415" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="390" end1="390" start2="416" end2="418" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="402" end1="403" start2="430" end2="432" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="404" end1="404" start2="433" end2="463" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="406" end1="406" start2="465" end2="466" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="409" end1="413" start2="469" end2="480" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="415" end1="419" start2="482" end2="491" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="421" end1="421" start2="493" end2="495" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="422" end1="424" start2="496" end2="500" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="425" end1="426" start2="501" end2="503" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="427" end1="427" start2="504" end2="551" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="428" end1="429" start2="552" end2="553" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/auth2.c">
+      <ranges>
+        <range start1="188" end1="191" start2="188" end2="194" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="193" end1="193" start2="196" end2="197" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="200" end1="200" start2="204" end2="205" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="205" end1="205" start2="210" end2="211" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="207" end1="207" start2="213" end2="214" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="275" end1="275" start2="282" end2="283" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="276" end1="276" start2="284" end2="285" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/hmac.c">
+      <ranges>
+        <range start1="109" end1="109" start2="109" end2="111" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="110" end1="111" start2="112" end2="114" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="112" end1="112" start2="115" end2="116" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/kexpqtqsc.c">
+      <ranges>
+        <range start1="31" end1="31" start2="31" end2="33" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="77" end1="78" start2="79" end2="80" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="79" end1="79" start2="81" end2="87" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="231" end1="232" start2="239" end2="239" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="235" end1="236" start2="242" end2="243" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="241" end1="242" start2="248" end2="255" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="278" end1="279" start2="291" end2="291" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="282" end1="283" start2="294" end2="295" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="288" end1="289" start2="300" end2="311" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="293" end1="296" start2="315" end2="315" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="301" end1="301" start2="320" end2="322" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="306" end1="307" start2="327" end2="327" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="309" end1="311" start2="329" end2="331" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="315" end1="321" start2="335" end2="335" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="327" end1="328" start2="341" end2="341" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="340" end1="341" start2="353" end2="353" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="342" end1="343" start2="354" end2="354" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="344" end1="345" start2="355" end2="355" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="350" end1="356" start2="360" end2="366" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="358" end1="358" start2="368" end2="375" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="359" end1="359" start2="376" end2="378" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="366" end1="373" start2="385" end2="390" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="374" end1="374" start2="391" end2="395" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="375" end1="379" start2="396" end2="401" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="381" end1="382" start2="403" end2="405" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="387" end1="387" start2="410" end2="411" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="390" end1="390" start2="414" end2="415" changelist="ae81b443-76e2-47db-b664-7c1d6fe96e68" />
+        <range start1="391" end1="392" start2="416" end2="417" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="393" end1="393" start2="418" end2="419" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="394" end1="395" start2="420" end2="420" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="396" end1="411" start2="421" end2="421" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="417" end1="417" start2="427" end2="428" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="422" end1="422" start2="433" end2="434" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="426" end1="427" start2="438" end2="439" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="430" end1="430" start2="442" end2="449" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="432" end1="433" start2="451" end2="453" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="434" end1="434" start2="454" end2="460" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="439" end1="440" start2="465" end2="465" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="445" end1="445" start2="470" end2="471" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="449" end1="450" start2="475" end2="477" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+        <range start1="452" end1="452" start2="479" end2="493" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="458" end1="458" start2="499" end2="505" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="462" end1="462" start2="509" end2="513" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="465" end1="465" start2="516" end2="518" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="470" end1="474" start2="523" end2="536" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="476" end1="480" start2="538" end2="548" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="482" end1="482" start2="550" end2="551" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="483" end1="483" start2="552" end2="555" changelist="23760a06-a58d-4e54-8c5e-0e45df51642b" />
+        <range start1="486" end1="486" start2="558" end2="578" changelist="899889ba-42ba-4d77-a60c-e15e4474a7a2" />
+      </ranges>
+    </file>
+  </component>
   <component name="ProjectId" id="1kmM1BhGtBHslHqk8DWFetx9DXP" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -55,8 +249,11 @@
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -64,7 +261,15 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="CLionExternalConfigurable" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="CodeWithMe" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -96,6 +301,18 @@
       <workItem from="1616419258323" duration="2832000" />
       <workItem from="1617016879004" duration="5116000" />
       <workItem from="1617708046155" duration="115000" />
+      <workItem from="1617708575081" duration="4098000" />
+      <workItem from="1617715153419" duration="1355000" />
+      <workItem from="1617876216373" duration="7972000" />
+      <workItem from="1618307487672" duration="10019000" />
+      <workItem from="1618592308301" duration="2368000" />
+      <workItem from="1618757174469" duration="1257000" />
+      <workItem from="1618922738293" duration="3112000" />
+      <workItem from="1618926167953" duration="294000" />
+      <workItem from="1618926475065" duration="3972000" />
+      <workItem from="1619686536580" duration="13772000" />
+      <workItem from="1620121969102" duration="9666000" />
+      <workItem from="1620731622746" duration="5646000" />
     </task>
     <task id="LOCAL-00001" summary="push 2">
       <created>1606301186863</created>
@@ -203,5 +420,20 @@
     <MESSAGE value="mac - check client side" />
     <MESSAGE value="Fix MAC" />
     <option name="LAST_COMMIT_MESSAGE" value="Fix MAC" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/kextqs.c</url>
+          <line>481</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -28,10 +28,11 @@ cat "${PREFIX}"/ssh_client/*.pub >> "${PREFIX}"/ssh_server/authorized_keys
   -f "${PREFIX}/sshd_config" \
   -o "KexAlgorithms=${KEXALG}" \
   -o "AuthorizedKeysFile=${PREFIX}/ssh_server/authorized_keys" \
-  -o "HostKeyAlgorithms=${SIGALG}" \
+  -o "HostKeyAlgorithms=ssh-ed25519,${SIGALG}" \
   -o "PubkeyAcceptedKeyTypes=${SIGALG},ssh-ed25519" \
   -o "StrictModes=no" \
   -h "${PREFIX}/ssh_server/id_${SIGALG}" \
+  -d \
   >> ${PREFIX}/server_log.txt 2>&1 &
 
 if [[ "${SIGALG}" =~ "rainbowi" ]]; then
@@ -52,9 +53,10 @@ SERVER_PID=$!
   -o "UserKnownHostsFile /dev/null" \
   -o "KexAlgorithms=${KEXALG}" \
   -o "HostKeyAlgorithms=${SIGALG}" \
-  -o "PubkeyAcceptedKeyTypes=${SIGALG}" \
+  -o "PubkeyAcceptedKeyTypes=${SIGALG},ssh-ed25519" \
   -o StrictHostKeyChecking=no \
   -i "${PREFIX}/ssh_client/id_ssh-ed25519" \
+  -vvv \
   "exit" \
   >> ${PREFIX}/client_log.txt 2>&1
 

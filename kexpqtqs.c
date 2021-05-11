@@ -11,6 +11,7 @@
 #include "ssh2.h"
 #include "kexpq.h"
 #include "sshbuf.h"
+#include "log.h"
 
 int
 pq_tqs_init(PQ_KEX_CTX **pq_kex_ctx, char *pq_kex_name) {
@@ -81,9 +82,6 @@ pq_tqs_hash (
 	int hash_alg,
 	const char *client_version_string,
 	const char *server_version_string,
-	const struct sshbuf *ckexinit,
-	const struct sshbuf *skexinit,
-	const u_char *serverhostkeyblob, size_t serverhostkeyblob_len,
 	const uint8_t *tqs_client_public, size_t tqs_client_public_len,
 	const uint8_t *tqs_server_public, size_t tqs_server_public_len,
 	const u_char *tqs_full_key, size_t tqs_fullkey_size,
@@ -91,42 +89,49 @@ pq_tqs_hash (
     u_char hash1[SSH_DIGEST_MAX_LENGTH];
     u_char hash2[SSH_DIGEST_MAX_LENGTH];
 
+    error(" client ver string %s ", client_version_string);
+    error(" server ver string %s ", server_version_string);
+    error(" tqs_client_public %s ", tqs_client_public);
+    error(" tqs_client_public_len %zu ", tqs_client_public_len);
+    error(" tqs_server_public %s ", tqs_server_public);
+    error(" tqs_server_public_len %zu ", tqs_server_public_len);
+    error(" tqs_full_key is %s with size %zu", tqs_full_key, tqs_fullkey_size);
+
 	struct sshbuf *hash_buf = NULL;
 	int r = 0;
-
 	if (*hash_len < ssh_digest_bytes(hash_alg)) {
+	    error(" %d", ssh_digest_bytes(hash_alg));
+	    error(" Gaat deze dan mis?");
 		r = SSH_ERR_INVALID_ARGUMENT;
 		goto out;
 	}
+    error(" Lukt alles nog een beetje?" );
 	if ((hash_buf = sshbuf_new()) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
+    error(" Lukt alles nog een beetje?1" );
 	/* We assume that sshbuf_put_*() correctly handles NULL parameters */
 	if ((r = sshbuf_put_cstring(hash_buf, client_version_string)) != 0 ||
-	    (r = sshbuf_put_cstring(hash_buf, server_version_string)) != 0 ||
+	    (r = sshbuf_put_cstring(hash_buf, server_version_string)) != 0)
 	    /* kexinit messages: fake header: len+SSH2_MSG_KEXINIT */
-	    (r = sshbuf_put_u32(hash_buf, sshbuf_len(ckexinit)+1)) != 0 ||
-	    (r = sshbuf_put_u8(hash_buf, SSH2_MSG_KEXINIT)) != 0 ||
-	    (r = sshbuf_putb(hash_buf, ckexinit)) != 0 ||
-	    (r = sshbuf_put_u32(hash_buf, sshbuf_len(skexinit)+1)) != 0 ||
-	    (r = sshbuf_put_u8(hash_buf, SSH2_MSG_KEXINIT)) != 0 ||
-	    (r = sshbuf_putb(hash_buf, skexinit)) != 0 ||
-	    (r = sshbuf_put_string(hash_buf, serverhostkeyblob, serverhostkeyblob_len)) != 0)
 		goto out;
+    error(" Lukt alles nog een beetje?2" );
 	if ((r = sshbuf_put_string(hash_buf, tqs_client_public,
 		tqs_client_public_len)) != 0 ||
 	    (r = sshbuf_put_string(hash_buf, tqs_server_public,
 	    tqs_server_public_len)) != 0 ||
 	    (r = sshbuf_put_string(hash_buf, tqs_full_key, tqs_fullkey_size)) != 0)
 		goto out;
-
+    error(" Lukt alles nog een beetje?3" );
 	if (ssh_digest_buffer(hash_alg, hash_buf, hash, *hash_len) != 0) {
 		r = SSH_ERR_LIBCRYPTO_ERROR;
 		goto out;
 	}
+	error("lukt alles 4");
 
 	*hash_len = ssh_digest_bytes(hash_alg);
+
 
 out:
 	if (hash_buf != NULL)

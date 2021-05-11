@@ -560,6 +560,7 @@ auth_openprincipals(const char *file, struct passwd *pw, int strict_modes)
 struct passwd *
 getpwnamallow(const char *user)
 {
+    error(" J'arrive");
 	struct ssh *ssh = active_state; /* XXX */
 #ifdef HAVE_LOGIN_CAP
 	extern login_cap_t *lc;

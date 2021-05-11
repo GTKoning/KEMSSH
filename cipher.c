@@ -42,7 +42,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-
+#include "log.h"
 #include "cipher.h"
 #include "misc.h"
 #include "sshbuf.h"
@@ -398,12 +398,16 @@ int
 cipher_get_length(struct sshcipher_ctx *cc, u_int *plenp, u_int seqnr,
     const u_char *cp, u_int len)
 {
-	if ((cc->cipher->flags & CFLAG_CHACHAPOLY) != 0)
-		return chachapoly_get_length(&cc->cp_ctx, plenp, seqnr,
-		    cp, len);
-	if (len < 4)
-		return SSH_ERR_MESSAGE_INCOMPLETE;
+    logit("packet length cipher_get_length %u.", plenp);
+	if ((cc->cipher->flags & CFLAG_CHACHAPOLY) != 0) {
+        return chachapoly_get_length(&cc->cp_ctx, plenp, seqnr,
+                                     cp, len);
+    }
+	if (len < 4) {
+        return SSH_ERR_MESSAGE_INCOMPLETE;
+    }
 	*plenp = PEEK_U32(cp);
+
 	return 0;
 }
 

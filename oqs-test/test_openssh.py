@@ -59,6 +59,7 @@ def gen_keys(sig_alg, party):
 def test_connection():
     global sig_algs, kex_algs
     port = 22345
+    print("Wow, zo ver zijn we nog - test_connection")
     for sig_alg in sig_algs:
         if 'rainbow' in sig_alg:
             # TODO: Revisit this after round 3 candidates come out
@@ -75,9 +76,10 @@ def test_connection():
                 port = port + 1
 
 def run_connection(sig_alg, kex_alg, port):
-    gen_keys(sig_alg, "client")
-    print(" HERE NOOOOOW ")
+    gen_keys("ssh-ed25519", "client")
+    print(" Now doing ' run_connection ' ")
     gen_keys(sig_alg, "server")
+    print(" mag ik keys maken? Als ik hier kom wel")
     helpers.run_subprocess(
     [os.path.join('oqs-test', 'do_openssh.sh')],
         env={
