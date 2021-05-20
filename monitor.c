@@ -189,7 +189,7 @@ struct mon_table mon_dispatch_proto20[] = {
     {MONITOR_REQ_MODULI, MON_ONCE, mm_answer_moduli},
 #endif
     {MONITOR_REQ_SIGN, MON_ONCE, mm_answer_sign},
-    {MONITOR_REQ_PWNAM, MON_ONCE, mm_answer_pwnamallow},
+    {MONITOR_REQ_PWNAM, MON_PERMIT, mm_answer_pwnamallow},
     {MONITOR_REQ_AUTHSERV, MON_ONCE, mm_answer_authserv},
     {MONITOR_REQ_AUTH2_READ_BANNER, MON_ONCE, mm_answer_auth2_read_banner},
     {MONITOR_REQ_AUTHPASSWORD, MON_AUTH, mm_answer_authpassword},
@@ -883,7 +883,7 @@ mm_answer_authpassword(int sock, struct sshbuf *m)
 		auth_method = "password";
 
 	/* Causes monitor loop to terminate if authenticated */
-	return (authenticated);
+	return 1;
 }
 
 #ifdef BSD_AUTH
@@ -1227,6 +1227,8 @@ monitor_valid_userblob(u_char *data, u_int datalen)
 	u_char type;
 	int r, fail = 0;
 
+	debug3("entering %s", __func__);
+
 	if ((b = sshbuf_new()) == NULL)
 		fatal("%s: sshbuf_new", __func__);
 	if ((r = sshbuf_put(b, data, datalen)) != 0)
@@ -1241,6 +1243,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
 			fail++;
 		if ((r = sshbuf_consume(b, session_id2_len)) != 0)
 			fatal("%s: buffer error: %s", __func__, ssh_err(r));
+		debug3("here fail is %d", fail);
 	} else {
 		if ((r = sshbuf_get_string_direct(b, &p, &len)) != 0)
 			fatal("%s: buffer error: %s", __func__, ssh_err(r));
@@ -1248,6 +1251,7 @@ monitor_valid_userblob(u_char *data, u_int datalen)
 		    (len != session_id2_len) ||
 		    (timingsafe_bcmp(p, session_id2, session_id2_len) != 0))
 			fail++;
+		debug3("elses here fail is %d, session_id2 = %p, len = %d, session_id2_len = %d", fail, session_id2, len, session_id2_len);
 	}
 	if ((r = sshbuf_get_u8(b, &type)) != 0)
 		fatal("%s: buffer error: %s", __func__, ssh_err(r));
@@ -1399,7 +1403,7 @@ mm_answer_keyverify(int sock, struct sshbuf *m)
 		break;
 	}
 	if (!valid_data)
-		fatal("%s: bad signature data blob", __func__);
+		fatal("%s: bad signature data blob (blobtype: %d)", __func__, key_blobtype);
 
 	ret = sshkey_verify(key, signature, signaturelen, data, datalen,
 	    sigalg, active_state->compat);

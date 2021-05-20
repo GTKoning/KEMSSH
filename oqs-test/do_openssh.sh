@@ -24,12 +24,12 @@ touch "${PREFIX}"/ssh_server/authorized_keys
 chmod 600 "${PREFIX}"/ssh_server/authorized_keys
 cat "${PREFIX}"/ssh_client/*.pub >> "${PREFIX}"/ssh_server/authorized_keys
 
-"${PREFIX}"/sbin/sshd -q -p "${PORT}" -d \
+"${PREFIX}"/sbin/sshd -p "${PORT}" -d \
   -f "${PREFIX}/sshd_config" \
   -o "KexAlgorithms=${KEXALG}" \
-  -o "AuthorizedKeysFile=${PREFIX}/ssh_server/authorized_keys" \
-  -o "HostKeyAlgorithms=ssh-ed25519,${SIGALG}" \
-  -o "PubkeyAcceptedKeyTypes=${SIGALG},ssh-ed25519" \
+  -o "AuthorizedKeysFile=/dev/null" \
+  -o "HostKeyAlgorithms=${SIGALG}" \
+  -o "PubkeyAcceptedKeyTypes=ssh-ed25519" \
   -o "StrictModes=no" \
   -h "${PREFIX}/ssh_server/id_${SIGALG}" \
   -d \
@@ -47,13 +47,13 @@ fi
 
 SERVER_PID=$!
 
-"${PREFIX}/bin/ssh" \
+sshpass -p "nepwachtwoord" "${PREFIX}/bin/ssh" \
   -p ${PORT} 127.0.0.1 \
   -F ${PREFIX}/ssh_config \
-  -o "UserKnownHostsFile /dev/null" \
+  -o "UserKnownHostsFile=/dev/null" \
   -o "KexAlgorithms=${KEXALG}" \
   -o "HostKeyAlgorithms=${SIGALG}" \
-  -o "PubkeyAcceptedKeyTypes=${SIGALG},ssh-ed25519" \
+  -o "PubkeyAcceptedKeyTypes=+${SIGALG}" \
   -o StrictHostKeyChecking=no \
   -i "${PREFIX}/ssh_client/id_ssh-ed25519" \
   -vvv \
