@@ -454,7 +454,7 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
     }
     error("shared secret checkpoint 1");
 
-    error("%s", tmp_server_host_key->oqs_pk);
+    error("%p", tmp_server_host_key->oqs_pk);
     error("%li", *tqs_halfkey_size);
 	// Nu moet de encapsulate komen !
     if (OQS_KEM_encaps(oqs_kex_ctx->oqs_kem, tmp_tqs_ct_a, tmp_tqs_key_a,
@@ -464,7 +464,7 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
         goto out;
     }
 
-    error("key_a: %s", tmp_tqs_key_a);
+    error("key_a: %p", tmp_tqs_key_a);
     error("shared secret checkpoint 2");
 	/* Generate shared secret from client private key and server public key */
 	if (OQS_KEM_decaps(oqs_kex_ctx->oqs_kem, tmp_tqs_key_b,
@@ -472,12 +472,12 @@ tqs_client_shared_secret(OQS_KEX_CTX *oqs_kex_ctx,
 		r = SSH_ERR_INTERNAL_ERROR;
 		goto out;
 	}
-    error( " [TESTING] Time to print tqs_key_b: %s", tmp_tqs_key_b);
+    error( " [TESTING] Time to print tqs_key_b: %p", tmp_tqs_key_b);
 
     error("shared secret checkpoint 3");
 
-    error("key_a: %s", tmp_tqs_key_a);
-    error("key_b: %s", tmp_tqs_key_b);
+    error("key_a: %p", tmp_tqs_key_a);
+    error("key_b: %p", tmp_tqs_key_b);
 
     memcpy(tmp_tqs_full_key, tmp_tqs_key_a, *tqs_halfkey_size);
     *(tmp_tqs_full_key + *tqs_halfkey_size) = ' ';
@@ -550,8 +550,8 @@ tqs_server_gen_msg_and_ss(struct ssh *ssh, OQS_KEX_CTX *oqs_kex_ctx,
     oqs_kex_ctx->oqs_kem = oqs_kem;
 	oqs_kex_ctx->tqs_ct_b = tmp_tqs_ct_b;
 	oqs_kex_ctx->tqs_ct_b_len = oqs_kex_ctx->oqs_kem->length_ciphertext;
-	error( " Time to print tqs_ct_b: %s", tmp_tqs_ct_b);
-    error( " [TESTING] Time to print tqs_key_b: %s", *tqs_key_b);
+	error( " Time to print tqs_ct_b: %p", tmp_tqs_ct_b);
+    error( " [TESTING] Time to print tqs_key_b: %p", *tqs_key_b);
     error( " They seem to work, somewhat");
 
 
@@ -607,8 +607,8 @@ tqs_server_gen_key_hmac(OQS_KEX_CTX *oqs_kex_ctx, u_char **tqs_full_key, size_t 
         goto out;
     }
 	debug("decaps lukte???");
-    error("key_a: %s", tmp_tqs_key_a);
-    error("key_b: %s", tmp_tqs_key_b);
+    error("key_a: %p", tmp_tqs_key_a);
+    error("key_b: %p", tmp_tqs_key_b);
 
     memcpy(tmp_tqs_full_key, tmp_tqs_key_a, tqs_halfkey_size);
     *(tmp_tqs_full_key + tqs_halfkey_size) = ' ';

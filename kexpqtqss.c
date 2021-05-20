@@ -55,8 +55,8 @@ pq_tqs_c2s_deserialise(struct ssh *ssh,
         goto out;
     }
     r = sshpkt_get_end(ssh);
-    error(" This is cta that we got from the package %s !!", pq_kex_ctx->oqs_kex_ctx->tqs_ct_a);
-    error(" This is remote msg that we got from the package %s !!", pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg);
+    error(" This is cta that we got from the package %p!!", pq_kex_ctx->oqs_kex_ctx->tqs_ct_a);
+    error(" This is remote msg that we got from the package %p !!", pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg);
 
 
     out:
@@ -351,10 +351,10 @@ input_pq_tqs_finish(int type, u_int32_t seq, struct ssh *ssh) {
     error( "");
     error(" ------ CHECKING SERVER SIDE HASH VALUES ------- ");
     error(" hash_alg: %d", kex->hash_alg);
-    error(" client_version_string: %s", kex->client_version_string);
-    error(" server_version_string: %s", kex->server_version_string);
-    error(" remote msg: %s | %zu", oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len);
-    error(" local msg: %s | %zu", oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len);
+    error(" client_version_string: %p", kex->client_version_string);
+    error(" server_version_string: %p", kex->server_version_string);
+    error(" remote msg: %p | %zu", oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len);
+    error(" local msg: %p | %zu", oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len);
 
     error(" ------ CHECKING SERVER SIDE HASH VALUES END ------- ");
     error( "");
@@ -442,7 +442,7 @@ input_pq_tqs_verinit(int type, u_int32_t seq,
 
     //Print variables to check where it kills itself
 
-    dump_value("hash server", oqs_kex_ctx->hash, oqs_kex_ctx->hash_len);
+    //dump_value("hash server", oqs_kex_ctx->hash, oqs_kex_ctx->hash_len);
 
 
     if((ssh_hmac_init(hash_checker_ctx, oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size)) < 0 ||
@@ -480,9 +480,9 @@ input_pq_tqs_verinit(int type, u_int32_t seq,
     memcpy(tmp_macmessage + oqs_kex_ctx->hash_len, tmp_digesta, oqs_kex_ctx->digestlen);
     macmessage = (u_char *) tmp_macmessage;
 
-    dump_value(" [Full key die wordt gebruikt] ", oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size);
-    dump_value(" [DISGESTA die wordt gebruikt] ", oqs_kex_ctx->digesta, oqs_kex_ctx->digestlen);
-    dump_value(" [MACMESSAGE die wordt gebruikt server side] ", macmessage, (oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len));
+    // dump_value(" [Full key die wordt gebruikt] ", oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size);
+    // dump_value(" [DISGESTA die wordt gebruikt] ", oqs_kex_ctx->digesta, oqs_kex_ctx->digestlen);
+    // dump_value(" [MACMESSAGE die wordt gebruikt server side] ", macmessage, (oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len));
 
     if((r = ssh_hmac_init(hash_ctx, oqs_kex_ctx->tqs_full_key, oqs_kex_ctx->tqs_fullkey_size)) < 0 ||
        (r = ssh_hmac_update(hash_ctx, macmessage, (oqs_kex_ctx->digestlen + oqs_kex_ctx->hash_len))) < 0 ||
@@ -494,7 +494,7 @@ input_pq_tqs_verinit(int type, u_int32_t seq,
     error("What about second breakfast");
 
     oqs_kex_ctx->digestb = digest;
-    dump_value(" [DISGESTB die is gemaakt op server] ", digest, oqs_kex_ctx->digestlen);
+    // dump_value(" [DISGESTB die is gemaakt op server] ", digest, oqs_kex_ctx->digestlen);
     int ptype = tqs_ssh2_verreply_msg(oqs_alg);
     error("Type = %d", ptype);
     if ((r = sshpkt_start(ssh, ptype)) != 0 ||
@@ -537,8 +537,8 @@ input_pq_tqs_verinit(int type, u_int32_t seq,
         goto out;
     }
 
-    dump_value("hash", oqs_kex_ctx->hash, oqs_kex_ctx->hash_len);
-    dump_value("session_id", kex->session_id, kex->session_id_len);
+    // dump_value("hash", oqs_kex_ctx->hash, oqs_kex_ctx->hash_len);
+    // dump_value("session_id", kex->session_id, kex->session_id_len);
 
 
     if ((r = sshbuf_put_string(shared_secret_ssh_buf, (const u_char *) oqs_kex_ctx->tqs_full_key,

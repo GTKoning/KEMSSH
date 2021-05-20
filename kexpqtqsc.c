@@ -53,7 +53,7 @@ pq_tqs_s2c_deserialise(struct ssh *ssh, PQ_KEX_CTX *pq_kex_ctx,
     if ((r = pq_tqs_deserialise_hostkey(ssh, server_host_key,
                                         server_host_key_blob, server_host_key_blob_len)) != 0 ||
         (r = tqs_deserialise2(ssh, pq_kex_ctx->oqs_kex_ctx, TQS_IS_CLIENT)) != 0) {
-        error(" remote msg is %s", pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg);
+        error(" remote msg is %p", pq_kex_ctx->oqs_kex_ctx->oqs_remote_msg);
         error("r is %i", r);
         goto out;
     }
@@ -301,10 +301,10 @@ input_pq_tqs_reply(int type, u_int32_t seq, struct ssh *ssh) {
     error( "");
     error(" ------ CHECKING CLIENT SIDE HASH VALUES ------- ");
     error(" hash_alg: %d", kex->hash_alg);
-    error(" client_version_string: %s", kex->client_version_string);
-    error(" server_version_string: %s", kex->server_version_string);
+    error(" client_version_string: %p", kex->client_version_string);
+    error(" server_version_string: %p", kex->server_version_string);
     dump_value("remote msg", oqs_kex_ctx->oqs_remote_msg, oqs_kex_ctx->oqs_remote_msg_len);
-    error(" local msg: %s | %zu", oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len);
+    error(" local msg: %p | %zu", oqs_kex_ctx->oqs_local_msg, oqs_kex_ctx->oqs_local_msg_len);
     dump_value("hash", hash, 48);
     error("hash_len: %zu @ %p", hash_len, &hash_len);
     error(" ------ CHECKING CLIENT SIDE HASH VALUES END ------- ");

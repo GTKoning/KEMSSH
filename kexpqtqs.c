@@ -89,13 +89,13 @@ pq_tqs_hash (
     u_char hash1[SSH_DIGEST_MAX_LENGTH];
     u_char hash2[SSH_DIGEST_MAX_LENGTH];
 
-    error(" client ver string %s ", client_version_string);
-    error(" server ver string %s ", server_version_string);
-    error(" tqs_client_public %s ", tqs_client_public);
+    error(" client ver string %p ", client_version_string);
+    error(" server ver string %p ", server_version_string);
+    error(" tqs_client_public %p ", tqs_client_public);
     error(" tqs_client_public_len %zu ", tqs_client_public_len);
-    error(" tqs_server_public %s ", tqs_server_public);
+    error(" tqs_server_public %p ", tqs_server_public);
     error(" tqs_server_public_len %zu ", tqs_server_public_len);
-    error(" tqs_full_key is %s with size %zu", tqs_full_key, tqs_fullkey_size);
+    error(" tqs_full_key is %p with size %zu", tqs_full_key, tqs_fullkey_size);
 
 	struct sshbuf *hash_buf = NULL;
 	int r = 0;
