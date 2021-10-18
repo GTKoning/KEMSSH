@@ -21,19 +21,19 @@
  */
 static const OQS_ALG oqs_alg_mapping[] = {
 #ifdef WITH_PQ_KEX
-	{PQ_OQS_KEX_SUFFIX("oqsdefault-sha384"), OQS_KEM_alg_default,
-	SSH2_MSG_PQ_OQSDEFAULT_INIT, SSH2_MSG_PQ_OQSDEFAULT_REPLY},
+	// {PQ_OQS_KEX_SUFFIX("oqsdefault-sha384"), OQS_KEM_alg_default,
+	// SSH2_MSG_PQ_OQSDEFAULT_INIT, SSH2_MSG_PQ_OQSDEFAULT_REPLY},
 ///// OQS_TEMPLATE_FRAGMENT_DEFINE_PQ_KEXS_START
-#ifdef HAVE_BIKE
-	{PQ_OQS_KEX_SUFFIX("bike1-l1-cpa-sha384"), OQS_KEM_alg_bike1_l1_cpa,
-	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
-	{PQ_OQS_KEX_SUFFIX("bike1-l3-cpa-sha384"), OQS_KEM_alg_bike1_l3_cpa,
-	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
-	{PQ_OQS_KEX_SUFFIX("bike1-l1-fo-sha384"), OQS_KEM_alg_bike1_l1_fo,
-	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
-	{PQ_OQS_KEX_SUFFIX("bike1-l3-fo-sha384"), OQS_KEM_alg_bike1_l3_fo,
-	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
-#endif /* HAVE_BIKE */
+// #ifdef HAVE_BIKE
+// 	{PQ_OQS_KEX_SUFFIX("bike1-l1-cpa-sha384"), OQS_KEM_alg_bike1_l1_cpa,
+// 	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("bike1-l3-cpa-sha384"), OQS_KEM_alg_bike1_l3_cpa,
+// 	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("bike1-l1-fo-sha384"), OQS_KEM_alg_bike1_l1_fo,
+// 	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("bike1-l3-fo-sha384"), OQS_KEM_alg_bike1_l3_fo,
+// 	SSH2_MSG_PQ_BIKE_INIT, SSH2_MSG_PQ_BIKE_REPLY},
+// #endif /* HAVE_BIKE */
 #ifdef HAVE_CLASSIC_MCELIECE
 	{PQ_OQS_KEX_SUFFIX("classic-mceliece-348864-sha384"), OQS_KEM_alg_classic_mceliece_348864,
 	SSH2_MSG_PQ_CLASSIC_MCELIECE_INIT, SSH2_MSG_PQ_CLASSIC_MCELIECE_REPLY},
@@ -138,20 +138,20 @@ static const OQS_ALG oqs_alg_mapping[] = {
 	{PQ_OQS_KEX_SUFFIX("sike-p751-compressed-sha384"), OQS_KEM_alg_sike_p751_compressed,
 	SSH2_MSG_PQ_SIKE_INIT, SSH2_MSG_PQ_SIKE_REPLY},
 #endif /* HAVE_SIKE */
-#ifdef HAVE_HQC
-	{PQ_OQS_KEX_SUFFIX("hqc-128-1-cca2-sha384"), OQS_KEM_alg_hqc_128_1_cca2,
-	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
-	{PQ_OQS_KEX_SUFFIX("hqc-192-1-cca2-sha384"), OQS_KEM_alg_hqc_192_1_cca2,
-	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
-	{PQ_OQS_KEX_SUFFIX("hqc-192-2-cca2-sha384"), OQS_KEM_alg_hqc_192_2_cca2,
-	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
-	{PQ_OQS_KEX_SUFFIX("hqc-256-1-cca2-sha384"), OQS_KEM_alg_hqc_256_1_cca2,
-	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
-	{PQ_OQS_KEX_SUFFIX("hqc-256-2-cca2-sha384"), OQS_KEM_alg_hqc_256_2_cca2,
-	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
-	{PQ_OQS_KEX_SUFFIX("hqc-256-3-cca2-sha384"), OQS_KEM_alg_hqc_256_3_cca2,
-	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
-#endif /* HAVE_HQC */
+// #ifdef HAVE_HQC
+// 	{PQ_OQS_KEX_SUFFIX("hqc-128-1-cca2-sha384"), OQS_KEM_alg_hqc_128_1_cca2,
+// 	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("hqc-192-1-cca2-sha384"), OQS_KEM_alg_hqc_192_1_cca2,
+// 	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("hqc-192-2-cca2-sha384"), OQS_KEM_alg_hqc_192_2_cca2,
+// 	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("hqc-256-1-cca2-sha384"), OQS_KEM_alg_hqc_256_1_cca2,
+// 	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("hqc-256-2-cca2-sha384"), OQS_KEM_alg_hqc_256_2_cca2,
+// 	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
+// 	{PQ_OQS_KEX_SUFFIX("hqc-256-3-cca2-sha384"), OQS_KEM_alg_hqc_256_3_cca2,
+// 	SSH2_MSG_PQ_HQC_INIT, SSH2_MSG_PQ_HQC_REPLY},
+// #endif /* HAVE_HQC */
 ///// OQS_TEMPLATE_FRAGMENT_DEFINE_PQ_KEXS_END
 #endif /* WITH_PQ_KEX */
 	{NULL,NULL,0,0} /* End of list */

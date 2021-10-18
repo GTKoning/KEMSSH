@@ -18,10 +18,10 @@ const char* get_oqs_alg_name(int openssh_type)
 	switch (openssh_type)
 	{
 ///// OQS_TEMPLATE_FRAGMENT_OSSH_KT_TO_OQS_METH_START
-		case KEY_OQSDEFAULT:
-		case KEY_RSA3072_OQSDEFAULT:
-		case KEY_P256_OQSDEFAULT:
-			return OQS_SIG_alg_default;
+		// case KEY_OQSDEFAULT:
+		// case KEY_RSA3072_OQSDEFAULT:
+		// case KEY_P256_OQSDEFAULT:
+		// 	return OQS_SIG_alg_default;
 		case KEY_DILITHIUM_2:
 		case KEY_RSA3072_DILITHIUM_2:
 		case KEY_P256_DILITHIUM_2:
@@ -38,16 +38,16 @@ const char* get_oqs_alg_name(int openssh_type)
 		case KEY_RSA3072_PICNIC3_L1:
 		case KEY_P256_PICNIC3_L1:
 			return OQS_SIG_alg_picnic3_L1;
-		case KEY_RAINBOW_IA_CLASSIC:
-		case KEY_RSA3072_RAINBOW_IA_CLASSIC:
-		case KEY_P256_RAINBOW_IA_CLASSIC:
-			return OQS_SIG_alg_rainbow_Ia_classic;
-		case KEY_RAINBOW_IIIC_CLASSIC:
-		case KEY_P384_RAINBOW_IIIC_CLASSIC:
-			return OQS_SIG_alg_rainbow_IIIc_classic;
-		case KEY_RAINBOW_VC_CLASSIC:
-		case KEY_P521_RAINBOW_VC_CLASSIC:
-			return OQS_SIG_alg_rainbow_Vc_classic;
+		// case KEY_RAINBOW_IA_CLASSIC:
+		// case KEY_RSA3072_RAINBOW_IA_CLASSIC:
+		// case KEY_P256_RAINBOW_IA_CLASSIC:
+		// 	return OQS_SIG_alg_rainbow_Ia_classic;
+		// case KEY_RAINBOW_IIIC_CLASSIC:
+		// case KEY_P384_RAINBOW_IIIC_CLASSIC:
+		// 	return OQS_SIG_alg_rainbow_IIIc_classic;
+		// case KEY_RAINBOW_VC_CLASSIC:
+		// case KEY_P521_RAINBOW_VC_CLASSIC:
+		// 	return OQS_SIG_alg_rainbow_Vc_classic;
 		case KEY_SPHINCS_HARAKA_128F_ROBUST:
 		case KEY_RSA3072_SPHINCS_HARAKA_128F_ROBUST:
 		case KEY_P256_SPHINCS_HARAKA_128F_ROBUST:
