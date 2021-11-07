@@ -111,7 +111,6 @@ ssh_hmac_final(struct ssh_hmac_ctx *ctx, u_char *d, size_t dlen)
     error(" Printing dlen: %lu", dlen);
 	if (dlen < len ||
 	    ssh_digest_final(ctx->digest, ctx->buf, len)) {
-	    error("hiero");
 		return -1;
 	}
 	/* switch to octx */

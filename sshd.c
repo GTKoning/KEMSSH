@@ -778,7 +778,6 @@ get_hostkey_by_type(int type, int nid, int need_private, struct ssh *ssh)
 			key = sensitive_data.host_certificates[i];
 			break;
 		case KEY_KYBER512:
-			debug("hier proberen we kyber te laden volgens idx %d (private: %d)", i, need_private);
 		default:
 			key = sensitive_data.host_keys[i];
 			debug("oqs_sk = %p", key->oqs_sk);

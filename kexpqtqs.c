@@ -105,30 +105,25 @@ pq_tqs_hash (
 		r = SSH_ERR_INVALID_ARGUMENT;
 		goto out;
 	}
-    error(" Lukt alles nog een beetje?" );
 	if ((hash_buf = sshbuf_new()) == NULL) {
 		r = SSH_ERR_ALLOC_FAIL;
 		goto out;
 	}
-    error(" Lukt alles nog een beetje?1" );
 	/* We assume that sshbuf_put_*() correctly handles NULL parameters */
 	if ((r = sshbuf_put_cstring(hash_buf, client_version_string)) != 0 ||
 	    (r = sshbuf_put_cstring(hash_buf, server_version_string)) != 0)
 	    /* kexinit messages: fake header: len+SSH2_MSG_KEXINIT */
 		goto out;
-    error(" Lukt alles nog een beetje?2" );
 	if ((r = sshbuf_put_string(hash_buf, tqs_client_public,
 		tqs_client_public_len)) != 0 ||
 	    (r = sshbuf_put_string(hash_buf, tqs_server_public,
 	    tqs_server_public_len)) != 0 ||
 	    (r = sshbuf_put_string(hash_buf, tqs_full_key, tqs_fullkey_size)) != 0)
 		goto out;
-    error(" Lukt alles nog een beetje?3" );
 	if (ssh_digest_buffer(hash_alg, hash_buf, hash, *hash_len) != 0) {
 		r = SSH_ERR_LIBCRYPTO_ERROR;
 		goto out;
 	}
-	error("lukt alles 4");
 
 	*hash_len = ssh_digest_bytes(hash_alg);
 

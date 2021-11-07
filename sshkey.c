@@ -3784,8 +3784,6 @@ sshkey_private_deserialize(struct sshbuf *buf, struct sshkey **kp)
 		break;
 #endif /* WITH_XMSS */
 #ifdef WITH_PQ_AUTH
-	// HIER MOET EIGEN CASE TQS AUTH KEM
-	// Is het mogelijk om gewoon te mergen? Nee. Vind mogelijkheid case Kyber512
 	CASE_KEY_TQS:
         if ((k = sshkey_new(type)) == NULL) {
             r = SSH_ERR_ALLOC_FAIL;
@@ -3829,13 +3827,11 @@ sshkey_private_deserialize(struct sshbuf *buf, struct sshkey **kp)
             goto out;
         if (pklen != k->oqs_kem->length_public_key || sklen != k->oqs_kem->length_secret_key) {
             r = SSH_ERR_INVALID_FORMAT;
-			debug("hier gaat iets mis");
 			exit(1);
             goto out;
         }
         k->oqs_pk = oqs_pk;
         k->oqs_sk = oqs_sk;
-		debug("oqs_sk is hier: %p", oqs_sk);
         oqs_pk = oqs_sk = NULL;
         break;
 	}

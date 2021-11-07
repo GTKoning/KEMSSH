@@ -186,9 +186,8 @@ input_service_request(int type, u_int32_t seq, struct ssh *ssh)
 	int acceptit = 0;
 	char *service = packet_get_cstring(&len);
 	packet_check_eom();
-    error(" we zijn in de functie");
 	if (authctxt == NULL) {
-        error(" authctxt is null :C");
+        error("authctxt is null :C");
         fatal("input_service_request: no authctxt");
 
     }
@@ -202,16 +201,13 @@ input_service_request(int type, u_int32_t seq, struct ssh *ssh)
 		}
 	}
 	/* XXX all other service requests are denied */
-	error(" Komen we hier");
 
 	if (acceptit) {
 		packet_start(SSH2_MSG_SERVICE_ACCEPT);
 		packet_put_cstring(service);
 		packet_send();
-		error(" Paket verstuurd! ");
 		packet_write_wait();
 	} else {
-	    error(" pakketje niet verstuurd want acceptit is false");
 		debug("bad service request %s", service);
 		packet_disconnect("bad service request %s", service);
 	}

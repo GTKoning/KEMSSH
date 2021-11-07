@@ -23,10 +23,8 @@ def run_subprocess(command, working_dir='.', env=None, expected_returncode=0):
         env=env,
     )
     print(result.stdout.decode('utf-8'))
-    print(" Got here ")
     assert result.returncode == expected_returncode, \
         "Got unexpected return code {}".format(result.returncode)
-    print(" Passed the assert ")
     return result.stdout.decode('utf-8')
 
 def run_subprocess_fork(command, working_dir='.', env=None, expected_returncode=0):

@@ -94,12 +94,10 @@ ssh_dispatch_run(struct ssh *ssh, int mode, volatile sig_atomic_t *done)
 	for (;;) {
 		if (mode == DISPATCH_BLOCK) {
 			r = ssh_packet_read_seqnr(ssh, &type, &seqnr);
-			debug("toch hier, r = %d", r);
 			if (r != 0)
 				return r;
 		} else {
 			r = ssh_packet_read_poll_seqnr(ssh, &type, &seqnr);
-			debug("hiero");
 			if (r != 0)
 				return r;
 			if (type == SSH_MSG_NONE)
