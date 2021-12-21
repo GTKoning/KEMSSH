@@ -56,7 +56,7 @@ sshpass -p "nepwachtwoord" "${PREFIX}/bin/ssh" \
   -o "PubkeyAcceptedKeyTypes=+${SIGALG}" \
   -o StrictHostKeyChecking=no \
   -i "${PREFIX}/ssh_client/id_ssh-ed25519" \
-  -vvv \
+  -v \
   "exit" \
   >> ${PREFIX}/client_log.txt 2>&1
 
